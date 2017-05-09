@@ -1,0 +1,4 @@
+module.exports = {
+    'secret': 'ilovescotchyscotch',
+    'database': "mongodb://user:pass@example.com:1234/stroeski-prod"
+};
