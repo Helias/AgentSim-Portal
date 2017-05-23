@@ -10,6 +10,7 @@ var mongoose    = require('mongoose');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./app/models/user'); // get our mongoose model
+var Script = require('./app/models/script');
 
 // =======================
 // configuration =========
@@ -90,7 +91,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 });
 
 // route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
+/*apiRoutes.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -121,6 +122,8 @@ apiRoutes.use(function(req, res, next) {
   }
 });
 
+*/
+
 // ######### API PROTECTED #########
 
 /*
@@ -134,6 +137,8 @@ apiRoutes.get('/setup', function(req, res) {
   var nick = new User({
     name: req.query.name,
     password: req.query.password,
+    surname: "",
+    nickname: "",
     admin: true
   });
 
@@ -146,10 +151,40 @@ apiRoutes.get('/setup', function(req, res) {
   });
 });
 
+apiRoutes.get('/setup2', function(req, res) {
+  // create a sample script
+  var script = new Script({
+    users_id: req.query.users_id
+  });
+
+  // save the sample script
+  script.save(function(err) {
+    if (err) throw err;
+
+    console.log('Script saved successfully');
+    res.json({ success: true });
+  });
+});
+
 // route to return all users (GET http://localhost:8080/api/users)
 apiRoutes.get('/users', function(req, res) {
   User.find({}, function(err, users) {
     res.json(users);
+  });
+});
+
+// route to return all scripts (GET http://localhost:8080/api/scripts)
+apiRoutes.get('/scripts', function(req, res){
+  Script.find({}, function(err, scripts){
+    res.json(scripts);
+  });
+});
+
+//route to return all user's scripts (GET http://localhost:8080/api/scripts/:user)
+apiRoutes.get('/scripts/:user', function(req, res){
+  var user = req.params.user;
+  Script.find({"users_id": user}, function(err, scripts){
+    res.json(scripts);
   });
 });
 

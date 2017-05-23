@@ -3,10 +3,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 // set up a mongoose model and pass it using module.exports
-module.exports = mongoose.model('User', new Schema({ 
-	nickname: String, 
-	password: String,
-	name: String,
-	surname: String,
-	admin: Boolean
+module.exports = mongoose.model('Script', new Schema({
+	creation: {type: Date, default: Date.now},
+	updated: {type: Date, default: Date.now},
+	users_id : Schema.Types.ObjectId
 }));
