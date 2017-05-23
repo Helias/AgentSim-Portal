@@ -26,10 +26,12 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 
-// API ROUTES -------------------
+// ######### API ROUTES #########
 
 // get an instance of the router for api routes
 var apiRoutes = express.Router();
+
+// ######### PUBLIC API #########
 
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
@@ -37,36 +39,6 @@ app.use('/api', apiRoutes);
 // route to show a random message (GET http://localhost:8080/api/)
 apiRoutes.get('/', function(req, res) {
   res.json({ message: 'Welcome to the AgentSimJS Portal API!' });
-});
-
-/*
- * /setup
- * name:      name of the user [string]
- * password:  password of the user [string]
- */
-apiRoutes.get('/setup', function(req, res) {
-
-  // create a sample user
-  var nick = new User({
-    name: req.query.name,
-    password: req.query.password,
-    admin: true
-  });
-
-  // save the sample user
-  nick.save(function(err) {
-    if (err) throw err;
-
-    console.log('User saved successfully');
-    res.json({ success: true });
-  });
-});
-
-// route to return all users (GET http://localhost:8080/api/users)
-apiRoutes.get('/users', function(req, res) {
-  User.find({}, function(err, users) {
-    res.json(users);
-  });
 });
 
 /*
@@ -149,6 +121,37 @@ apiRoutes.use(function(req, res, next) {
   }
 });
 
+// ######### API PROTECTED #########
+
+/*
+ * /setup
+ * name:      name of the user [string]
+ * password:  password of the user [string]
+ */
+apiRoutes.get('/setup', function(req, res) {
+
+  // create a sample user
+  var nick = new User({
+    name: req.query.name,
+    password: req.query.password,
+    admin: true
+  });
+
+  // save the sample user
+  nick.save(function(err) {
+    if (err) throw err;
+
+    console.log('User saved successfully');
+    res.json({ success: true });
+  });
+});
+
+// route to return all users (GET http://localhost:8080/api/users)
+apiRoutes.get('/users', function(req, res) {
+  User.find({}, function(err, users) {
+    res.json(users);
+  });
+});
 
 // =======================
 // start the server ======
