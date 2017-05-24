@@ -9,7 +9,7 @@ var mongoose    = require('mongoose');
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
-var User   = require('./app/models/user'); // get our mongoose model
+var User   = require('./app/models/user'); // get our mongoose models
 var Script = require('./app/models/script');
 
 // =======================
@@ -25,7 +25,6 @@ app.use(bodyParser.json());
 
 // use morgan to log requests to the console
 app.use(morgan('dev'));
-
 
 // ######### API ROUTES #########
 
@@ -91,7 +90,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 });
 
 // route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
+/*apiRoutes.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -120,7 +119,7 @@ apiRoutes.use(function(req, res, next) {
     });
 
   }
-});
+});*/
 
 // ######### API PROTECTED #########
 
@@ -129,39 +128,54 @@ apiRoutes.use(function(req, res, next) {
  * name:      name of the user [string]
  * password:  password of the user [string]
  */
-apiRoutes.get('/setup', function(req, res) {
 
-  // create a sample user
-  var nick = new User({
-    name: req.query.name,
-    password: req.query.password,
-    surname: "",
-    nickname: "",
-    admin: true
-  });
+apiRoutes.get('/setup/:name', function(req, res) {
+  var name = req.params.name;
 
-  // save the sample user
-  nick.save(function(err) {
-    if (err) throw err;
+  if(name == "user"){
+    // create a sample user
+    var nick = new User({
+      name: req.query.name,
+      password: req.query.password,
+      surname: "",
+      nickname: "",
+      admin: true
+    });
 
-    console.log('User saved successfully');
-    res.json({ success: true });
-  });
-});
+    // save the sample user
+    nick.save(function(err) {
+      if (err) throw err;
 
-apiRoutes.get('/setup2', function(req, res) {
-  // create a sample script
-  var script = new Script({
-    users_id: req.query.users_id
-  });
+      console.log('User saved successfully');
+      res.json({ success: true });
+    });
+  }
+  else if(name == "script"){
+    // create a sample script
+    if(!req.query.users_id){
+      res.json({
+        success: false,
+        message: 'You have to specify the owner user.'
+      });
+    }
+    var script = new Script({
+      users_id: req.query.users_id
+    });
 
-  // save the sample script
-  script.save(function(err) {
-    if (err) throw err;
+    // save the sample script
+    script.save(function(err) {
+      if (err) throw err;
 
-    console.log('Script saved successfully');
-    res.json({ success: true });
-  });
+      console.log('Script saved successfully');
+      res.json({ success: true });
+    });
+  }
+  else{
+    res.json({
+      succes: false,
+      message: 'You have to specify /setup/user or setup/script'
+    });
+  }
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
@@ -181,6 +195,7 @@ apiRoutes.get('/scripts', function(req, res){
 //route to return all user's scripts (GET http://localhost:8080/api/scripts/:user)
 apiRoutes.get('/scripts/:user', function(req, res){
   var user = req.params.user;
+  console.log(user);
   Script.find({"users_id": user}, function(err, scripts){
     res.json(scripts);
   });
