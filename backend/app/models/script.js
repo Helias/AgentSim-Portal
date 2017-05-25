@@ -6,5 +6,6 @@ var Schema = mongoose.Schema;
 module.exports = mongoose.model('Script', new Schema({
 	creation: {type: Date, default: Date.now},
 	updated: {type: Date, default: Date.now},
-	users_id : Schema.Types.ObjectId
+	users_id: Schema.Types.ObjectId,
+	path: String
 }));

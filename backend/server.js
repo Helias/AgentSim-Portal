@@ -6,6 +6,7 @@ var app         = express();
 var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
+var fileUpload = require('express-fileupload');
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
@@ -25,6 +26,9 @@ app.use(bodyParser.json());
 
 // use morgan to log requests to the console
 app.use(morgan('dev'));
+
+// use express-fileupload to upload file
+app.use(fileUpload());
 
 // ######### API ROUTES #########
 
@@ -129,53 +133,24 @@ apiRoutes.post('/authenticate', function(req, res) {
  * password:  password of the user [string]
  */
 
-apiRoutes.get('/setup/:name', function(req, res) {
-  var name = req.params.name;
+apiRoutes.get('/setup', function(req, res) {
+  // create a sample user
+  var nick = new User({
+    name: req.query.name,
+    password: req.query.password,
+    surname: "",
+    nickname: "",
+    admin: true
+  });
 
-  if(name == "user"){
-    // create a sample user
-    var nick = new User({
-      name: req.query.name,
-      password: req.query.password,
-      surname: "",
-      nickname: "",
-      admin: true
-    });
+  // save the sample user
+  nick.save(function(err) {
+    if (err) throw err;
 
-    // save the sample user
-    nick.save(function(err) {
-      if (err) throw err;
+    console.log('User saved successfully');
+    res.json({ success: true });
+  });
 
-      console.log('User saved successfully');
-      res.json({ success: true });
-    });
-  }
-  else if(name == "script"){
-    // create a sample script
-    if(!req.query.users_id){
-      res.json({
-        success: false,
-        message: 'You have to specify the owner user.'
-      });
-    }
-    var script = new Script({
-      users_id: req.query.users_id
-    });
-
-    // save the sample script
-    script.save(function(err) {
-      if (err) throw err;
-
-      console.log('Script saved successfully');
-      res.json({ success: true });
-    });
-  }
-  else{
-    res.json({
-      succes: false,
-      message: 'You have to specify /setup/user or setup/script'
-    });
-  }
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
@@ -199,6 +174,42 @@ apiRoutes.get('/scripts/:user', function(req, res){
   Script.find({"users_id": user}, function(err, scripts){
     res.json(scripts);
   });
+});
+
+//route to upload new scripts
+apiRoutes.post('/upload', function(req, res){
+  if(!req.files)
+    res.json({
+      success: false,
+      message: 'No file uploaded.'
+    });
+
+    //the name of the input field is used to retrieve the uploaded file
+    let sampleFile = req.files.sampleFile;
+
+    //use the mv() method to place the file on server directory
+    var upload_path = './upload/file.txt';
+    sampleFile.mv(upload_path, function(err){
+      if(err)
+        throw err;
+    });
+
+    // create a sample script
+    var script = new Script({
+      users_id: req.query.user_id,
+      path: upload_path
+    });
+
+    // save the sample script
+    script.save(function(err) {
+      if (err) throw err;
+
+      console.log('Script saved successfully');
+      res.json({
+        success: true,
+        message: 'File Uploaded!'
+      });
+    });
 });
 
 // =======================

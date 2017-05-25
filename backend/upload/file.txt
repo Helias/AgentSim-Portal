@@ -1,0 +1,603 @@
+<html>
+	<head>
+		<title>AgentSimJs Test App</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100%;z-index:-1; }
+			div {
+  display:block;
+}
+
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script src="environment.js"></script>
+		<script src="OrbitControls.js"></script>
+		<script src="threex.domevent.js"></script>
+		<script src="TrackballControls.js"></script>
+		<script src="Agent.js"></script>
+		<script src="mqtt_ws_manager.js"></script>
+		<script src="indexdb_manager.js"></script>
+		<script src="message_list.js"></script>
+		<script src="./Utils/constants.js"></script>
+		<script type="text/javascript" src="./dat_gui/dat.gui.js"></script>
+		<script src="plant.js"></script>
+		<script src="panel.js"></script>
+		<script src="group_controller.js"></script>
+		<script src="master_groups_controller.js"></script>
+		<!--mqtt libs-->
+
+		<script src="mqttws31.js" type="text/javascript"></script>
+		
+		<script>
+		
+   		
+  		var scene;
+  	  	var controls;
+  		this.isRunning = false;
+  		var agent_list=[];
+  		var route_to_go=[];
+  		var spawn_at=[];
+  		var id_counter=3;
+  		var collision_worker = new Worker('collision_worker.js');
+
+		var CustomDat = function() {
+
+		this.movement_worker=new SharedWorker('movement_worker.js');
+	
+	    this.displayAxis = true;
+	    this.centralized_worker = true;
+	    this.route_x = 0;
+	    this.route_y = 0;
+	    this.route_z = 0;
+	    this.spawn_x = 0;
+	    this.spawn_y = 0;
+	    this.spawn_z = 0;
+	    this.radius=2;
+	    this.linear_motion = true;
+	    this.circular_motion = false;
+	    this.projectile_motion = false;
+
+ 		this.density = 30;
+  		this.range = 100;
+   		this.spawn_object_x = 0;
+	    this.spawn_object_y = 0;
+	    this.spawn_object_z = 0;
+		this.triangle = false;
+	    this.sphere = false;
+	    this.cube = true;
+	    this.starting = function() {
+	       start();
+	    };
+ 		this.create = function() {
+ 			/*r agent;
+
+ 			if(this.centralized_worker){
+ 				console.log("aggancio al singolo worker l'agent "+id_counter);
+ 				var movement_type='linear_motion';
+ 				if(this.linear_motion==true){
+					movement_type='linear_motion';
+ 				}else if(this.circular_motion==true){
+					movement_type='circular_motion';
+ 				}else if(this.projectile_motion==true){
+ 					movement_type='projectile_motion';
+ 				}
+ 				agent= new Agent(id_counter, 1, 2, this.displayAxis,this.movement_worker,movement_type,collision_worker);
+ 			}else{
+ 				console.log("instanzio un nuovo worker per l'agent"+id_counter);
+ 				agent = new Agent(id_counter, 1, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker);
+ 			}
+ 			id_counter++;
+ 			
+		   agent.setRoute(route_to_go);
+			route_to_go=[];
+	       agent_list.push(agent);
+	       agent.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent.setScene(scene);
+	       agent.spawn();
+	       agent.plotAgentAxes();
+	       agent.setCollisionWorker();
+	       this.route_x=0;
+	       this.route_y=0;
+	       this.route_z=0;
+	       this.spawn_x = 0;
+	       this.spawn_y = 0;
+	       this.spawn_z = 0;
+	       alert("created");  */
+	    };
+	    this.add_to_route = function() {
+
+	       route_to_go.push({x: this.route_x,y: this.route_y,z: this.route_z});
+	       this.route_x=0;
+	       this.route_y=0;
+	       this.route_z=0;
+	       alert("insert ok");
+
+	    };
+	    this.removeAll = function() {
+	        removeAll();
+	    };
+
+	      this.Random_Spawn = function() {
+	        randomSpawn(scene,this.density,this.range,collision_worker);
+	    };
+
+	      this.object_spawn = function() {
+	      	var shape_type="cube";
+	      	if(this.cube){
+				shape_type="cube";
+	      	}else if(this.triangle){
+				shape_type="triangle";
+	      	}else if(this.sphere){
+				shape_type="sphere";
+	      	}
+	        spawnShapeAt(scene,this.spawn_object_x,this.spawn_object_y,this.spawn_object_z,shape_type,collision_worker);
+	    };
+	};
+
+	window.onload = function() {
+		
+	    this.text = new CustomDat();
+	    var gui = new dat.GUI();
+	 
+	    var agent_folder = gui.addFolder('Agent');
+		agent_folder.add(text, 'displayAxis');
+		agent_folder.add(text, 'centralized_worker');
+		
+		var route_folder=agent_folder.addFolder("route");
+		route_folder.add(text,'route_x');
+		route_folder.add(text,'route_y');
+		route_folder.add(text,'route_z');
+		route_folder.add(text, 'add_to_route');
+		//route_folder.open();
+		var spawn_folder=agent_folder.addFolder("spawnPointDefinition");
+		spawn_folder.add(text,'spawn_x');
+		spawn_folder.add(text,'spawn_y');
+		spawn_folder.add(text,'spawn_z');
+	
+		//spawn_folder.open();
+		var movement_type_folder=agent_folder.addFolder("movement_type_folder");
+		movement_type_folder.add(text,'linear_motion');
+		movement_type_folder.add(text,'circular_motion');
+		movement_type_folder.add(text,'projectile_motion');
+		movement_type_folder.add(text,'radius');
+		//movement_type_folder.open();
+		agent_folder.add(text, 'create');
+		agent_folder.open();
+	    //gui.add(text, 'test');
+	    var object_folder = gui.addFolder('Object');
+	    object_folder.add(text,'density');
+		object_folder.add(text,'range');
+		object_folder.add(text, 'Random_Spawn');
+		var spawn_object__folder=object_folder.addFolder("SpawnObjectManually");
+		spawn_object__folder.add(text,'spawn_object_x');
+		spawn_object__folder.add(text,'spawn_object_y');
+		spawn_object__folder.add(text,'spawn_object_z');
+		spawn_object__folder.add(text, 'triangle');
+		spawn_object__folder.add(text, 'sphere');
+		spawn_object__folder.add(text, 'cube');
+
+		spawn_object__folder.add(text, 'object_spawn');
+	    object_folder.open();
+
+
+	    gui.add(text, 'starting');
+	    gui.add(text, 'removeAll');
+		preLoad(this.scene);
+ 		
+
+	   
+	};
+
+
+	function start (){
+			for(var i=0;i<agent_list.length;i++){
+			if(agent_list[i].movement_type=='linear_motion'){
+							agent_list[i].followTheRoute();
+			     		}else if(agent_list[i].movement_type=='circular_motion'){
+							agent_list[i].circular_motion(this.text.radius);
+			     		}else if(agent_list[i].movement_type=='projectile_motion'){
+			     			agent_list[i].projectile_motion(agent_list[i].route[0]);
+			     		}
+			     	}
+	}
+
+
+    function preLoad() {
+		
+	    if (!this.isRunning) {
+	        this.isRunning = true;
+	        if (scene == null) {
+	            scene = new THREE.Scene();
+	        }
+	     	var WIDTH = window.innerWidth,
+          HEIGHT = window.innerHeight;
+	     	camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 200000);
+      		
+	        camera.position.y = 800;
+	        camera.position.x = 800;
+	        camera.position.z = 800;
+
+	        scene.add(camera);
+
+
+
+
+ 		    var container = document.getElementById( 'container' );
+	        var renderer = new THREE.WebGLRenderer({ alpha: true });
+	        renderer.setSize(window.innerWidth, window.innerHeight);
+
+	         // Create an event listener that resizes the renderer with the browser window.
+		      window.addEventListener('resize', function() {
+		        var WIDTH = window.innerWidth,
+		            HEIGHT = window.innerHeight;
+		        renderer.setSize(WIDTH, HEIGHT);
+		        camera.aspect = WIDTH / HEIGHT;
+		        camera.updateProjectionMatrix();
+		      });
+
+			container.appendChild( renderer.domElement );
+	        controls = new THREE.OrbitControls(camera, renderer.domElement);
+	        controls.enabled = false;
+	        initEnvironment(scene, camera, renderer, controls);
+
+	        var geometry = new THREE.BoxGeometry(1, 1, 1);
+	        var material = new THREE.MeshBasicMaterial({
+	            color: 0x00ff00
+	        });
+	       
+	        
+	        var raycaster_sims = new THREE.Raycaster();
+	        var mouse_sims = new THREE.Vector2();
+   	        renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		    renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+		    //ambient clear background
+		    //renderer.setClearColor(0xffffff, 1);
+			singleAgentTest()
+
+   			/**CREAZIONE RENDER**/
+	        var render = function() {
+	            requestAnimationFrame(render);
+	            controls.update();
+	            //cube.rotation.x += 0.1;
+	            //cube.rotation.y += 0.1;
+	            for(var j=0; j< agent_list.length;j++){
+	            	//agent_list[j].moveForward_Spline(scene);
+	            	 //agent_list[j].agent_object.position.x += 1;
+	            }
+	            
+
+	            renderer.render(scene, camera);
+	        };
+
+
+	        render();
+	    }
+	}
+
+
+	function removeAll(scene) {
+	    location.reload();
+	}
+
+	function onDocumentMouseDown( event ) {
+					controls.enabled = true;
+	}
+		
+	function onDocumentMouseUp( event ) {
+					controls.enabled = false;
+	}
+
+
+		
+
+	function singleAgentTest(){
+
+
+	  var plant1 = new plant_obj(1,400,-150,550,scene);
+      plant1.build_plant();
+
+
+      var plant2 = new plant_obj(2,400,-1150,-250,scene);
+      plant2.build_plant();
+
+      var plant3 = new plant_obj(3,300,-750, -850,scene);
+      plant3.build_plant();
+
+      var plant4 = new plant_obj(4,300,450, -950,scene);
+      plant4.build_plant();
+
+
+      var plant5 = new plant_obj(5,400,670, -450,scene);
+      plant5.build_plant();
+
+
+      var plant6 = new plant_obj(6,500,-1450,350,scene);
+      plant6.build_plant();
+
+
+      var plant7 = new plant_obj(7,300,350, 250,scene);
+      plant7.build_plant();
+
+      var plant8 = new plant_obj(8,300,-1750, -850,scene);
+      plant8.build_plant();
+
+      var plant9 = new plant_obj(9,400,1250, -950,scene);
+      plant9.build_plant();
+
+
+      var plant10 = new plant_obj(10,400,-370, -450,scene);
+      plant10.build_plant();
+ 
+
+
+		this.movement_worker=new Worker('movement_worker.js');
+	
+	    this.displayAxis = true;
+	    this.centralized_worker = true;
+	    this.route_x = 0;
+	    this.route_y = 0;
+	    this.route_z = 0;
+	    this.spawn_x = 0;
+	    this.spawn_y = 0;
+	    this.spawn_z = 0;
+	    this.radius=2;
+	    this.linear_motion = true;
+	    this.circular_motion = false;
+	    this.projectile_motion = false;
+
+ 		this.density = 30;
+  		this.range = 100;
+   		this.spawn_object_x = 10;
+	    this.spawn_object_y = 10;
+	    this.spawn_object_z = 10;
+		this.triangle = false;
+	    this.sphere = false;
+	    this.cube = true;
+	   
+ 		var agent,agent2;
+
+ 		
+ 		this.centralized_worker=false;
+
+ 			/*(this.centralized_worker){
+ 				console.log("aggancio al singolo worker l'agent "+id_counter);
+ 				var movement_type='linear_motion';
+ 				if(this.linear_motion==true){
+					movement_type='linear_motion';
+ 				}else if(this.circular_motion==true){
+					movement_type='circular_motion';
+ 				}else if(this.projectile_motion==true){
+ 					movement_type='projectile_motion';
+ 				}
+ 				agent= new Agent(1, 1, 2, this.displayAxis,this.movement_worker,movement_type,collision_worker);
+ 				agent2= new Agent(2, 1, 2, this.displayAxis,this.movement_worker,movement_type,collision_worker);
+ 			}else{
+ 				console.log("instanzio un nuovo worker per l'agent"+id_counter);
+ 				agent = new Agent(1, 1, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker);
+ 				agent2 = new Agent(2, 1, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker);
+ 			}
+ 			id_counter++;*/
+ 			var movement_type='linear_motion';
+ 			agent= new Agent(1, 1, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+ 			agent2= new Agent(2, 0, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+ 			agent3= new Agent(3, 0, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+ 			agent4= new Agent(4, 0, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+ 			agent5= new Agent(5, 0, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+ 			agent6= new Agent(6, 0, 2, this.displayAxis,new Worker('movement_worker.js'),movement_type,collision_worker,"decentralized");
+
+ 		    //trajectory definition
+
+
+ 		   route_to_go=[];	
+ 		   /*route_to_go.push({x: "30",y: "50",z: "100"});
+
+ 		   route_to_go.push({x: "50",y: "50",z: "130"});
+
+ 		   route_to_go.push({x: "150",y: "50",z: "140"});*/
+ 			 route_to_go.push(new THREE.Vector3(0, 0, 0));
+			 route_to_go.push(new THREE.Vector3(30, 50, 100));
+			 route_to_go.push(new THREE.Vector3(50, 50, 130));
+			 route_to_go.push(new THREE.Vector3(150, 50, 170));
+			 route_to_go.push(new THREE.Vector3(160, 50, 180));
+
+			 route_to_go.push(new THREE.Vector3(180, 50, 220));
+			
+
+
+	       /*this.route_x=0;
+	       this.route_y=0;
+	       this.route_z=0;*/
+
+	       console.log("inserisco route");
+  		   console.log(route_to_go);
+		   agent.setRoute(route_to_go);
+		   this.spawn_x = 120;
+	       this.spawn_y = 120;
+	       this.spawn_z = 120;
+
+	       var msgbus_worker=new Worker('messageBus_worker.js');
+	       var temp_mqtt_broker_conn_start=mqtt_broker_conn_start;
+	       temp_mqtt_broker_conn_start.topicMsg="mqtt_conn_management";
+ 		   temp_mqtt_broker_conn_start.command="open_connection";
+ 		   msgbus_worker.postMessage(temp_mqtt_broker_conn_start);
+
+ 		   var indexdb = new indexdb_manager();
+ 		   indexdb.create_db();
+
+ 		   var mqttWsmang = new mqtt_ws_manager();
+	       mqttWsmang.setMsgBus_worker(msgbus_worker);
+	       mqttWsmang.subscribe("agentSimJs");
+
+
+	       agent_list.push(agent);
+	       agent_list.push(agent2);
+	       console.log(agent_list);
+
+	       agent.agent_object=agent;
+	       agent2.agent_object=agent2;
+	       agent3.agent_object=agent3;
+	       agent4.agent_object=agent4;
+ 		   agent5.agent_object=agent5;
+  		   agent6.agent_object=agent6;
+   
+	      
+	       agent.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent.setScene(scene);
+	       agent.setMessageBus_Worker(msgbus_worker);
+	       agent.spawn();
+	       agent.setIndexdb(indexdb);
+	       agent.findPointOnCircumference(new THREE.Vector3(1250, 100, -950));  
+	       agent.moveAroundPoint();
+	      
+	       //agent.initSplineTraj(route_to_go);
+	       //agent.plotTrajectory(scene);
+
+	     
+	     
+
+
+	       agent2.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent2.setScene(scene);
+	       agent2.spawn();
+	       agent2.setIndexdb(indexdb);
+	       agent2.setMessageBus_Worker(msgbus_worker);
+	       agent2.setMessageListener();
+	       agent2.findPointOnCircumference(new THREE.Vector3(-370, 200, -450));
+	       agent2.moveAroundPoint();
+	      // agent2.plotTrajectory(scene);
+	       
+	      	
+
+	       agent3.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent3.setScene(scene);
+	       agent3.spawn();
+	       agent3.setIndexdb(indexdb);
+	       agent3.setMessageBus_Worker(msgbus_worker);
+	       agent3.setMessageListener();
+	       agent3.findPointOnCircumference(new THREE.Vector3(350, 200, 250));
+	       agent3.moveAroundPoint();	
+	       
+	      
+
+	       agent4.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent4.setScene(scene);
+	       agent4.spawn();
+	       agent4.setIndexdb(indexdb);
+	       agent4.setMessageBus_Worker(msgbus_worker);
+	       agent4.setMessageListener();
+	       agent4.findPointOnCircumference(new THREE.Vector3(-150, 200, 450));
+	       agent4.moveAroundPoint();
+
+	       agent5.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent5.setScene(scene);
+	       agent5.spawn();
+	       agent5.setIndexdb(indexdb);
+	       agent5.setMessageBus_Worker(msgbus_worker);
+	       agent5.setMessageListener();
+	       agent5.findPointOnCircumference(new THREE.Vector3(670, 200, -450));
+	       agent5.moveAroundPoint();
+
+
+	       agent6.setSpawnPoint([{x:this.spawn_x,y:this.spawn_y,z:this.spawn_z}]);
+    	   agent6.setScene(scene);
+	       agent6.spawn();
+	       agent6.setIndexdb(indexdb);
+	       agent6.setMessageBus_Worker(msgbus_worker);
+	       agent6.setMessageListener();
+	       agent6.findPointOnCircumference(new THREE.Vector3(300, 200, -750));
+	       agent6.moveAroundPoint();
+
+	       route_to_go=[];
+	       route_to_go.push(new THREE.Vector3(0, 0, 0));
+		   route_to_go.push(new THREE.Vector3(30, 150, -100));
+		   route_to_go.push(new THREE.Vector3(50, 150, -130));
+		   route_to_go.push(new THREE.Vector3(130, 100, 230));
+		   route_to_go.push(new THREE.Vector3(120, 100, 180));
+		   route_to_go.push(new THREE.Vector3(180, 50, 220));
+	       //
+
+
+	       
+
+
+
+	       //agent2.plotTrajectory(scene);
+
+	      //----simulate position sending after a time interval (not directly related to the comm bus and index db to prevent msg flooding and db over-usage)	
+	      /*setInterval(function(){ 	agent2.send_position_message(); }
+	       ,4000);
+
+	       agent2.enableSavePosOnDB(true);
+		   agent2.setPositionMsgMode(false);
+		   //all the others agent must be disabled to check the external flow
+		   agent.setPositionMsgMode(false)*/
+
+		   //-----------------------------------------//
+
+	      /* setTimeout( function(){ 	//agent.stop_agent();
+	       agent.findPointOnCircumference(new THREE.Vector3(10, 10, 10));
+	       agent.moveAroundPoint(); 
+	       	//agent.plotTrajectory(scene);
+	   		}
+	       ,4000);*/
+
+
+	       
+	       
+	       /*agent.enableSavePosOnDB(true);
+	       agent2.enableSavePosOnDB(true);*/
+	      
+	       
+
+ 		   /*temp_mqtt_broker_conn_start.hostname:"noname";
+ 		   temp_mqtt_broker_conn_start.port:"";*/
+ 		   
+
+	      // agent.agent_object.rotation.x=(-Math.PI/2);
+
+
+	       //agent.enableSavePosOnDB(true);
+	    
+	
+           //agent.agent_object.rotation.z=(-Math.PI/10);
+
+           //last comments
+	       /*agent.plotAgentAxes();
+	       agent.plotTrajectory();
+	       agent.setCollisionWorker();
+	       console.log("Call  followTheRoute");
+		   agent.followTheRoute();*/
+
+	       /*this.route_x=0;
+	       this.route_y=0;
+	       this.route_z=0;
+	       this.spawn_x = 0;
+	       this.spawn_y = 0;
+	       this.spawn_z = 0;*/
+	    
+	  
+	 
+	     
+	        //randomSpawn(scene,this.density,this.range,collision_worker);
+	   
+
+	     
+	      	/*var shape_type="cube";
+	      	if(this.cube){
+				shape_type="cube";
+	      	}else if(this.triangle){
+				shape_type="triangle";
+	      	}else if(this.sphere){
+				shape_type="sphere";
+	      	}
+	        spawnShapeAt(scene,this.spawn_object_x,this.spawn_object_y,this.spawn_object_z,shape_type,collision_worker);*/
+
+
+	}
+		</script>
+
+		<div id="container" style="cursor: auto;"  ></div>
+	</body>
+</html>
