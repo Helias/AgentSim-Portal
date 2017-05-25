@@ -7,6 +7,7 @@ var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var fileUpload = require('express-fileupload');
+var fs = require('fs');
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
@@ -17,6 +18,7 @@ var Script = require('./app/models/script');
 // configuration =========
 // =======================
 var port = process.env.PORT || 8080; // used to create, sign, and verify tokens
+mongoose.Promise = global.Promise;
 mongoose.connect(config.database); // connect to database
 app.set('superSecret', config.secret); // secret variable
 
@@ -178,38 +180,56 @@ apiRoutes.get('/scripts/:user', function(req, res){
 
 //route to upload new scripts
 apiRoutes.post('/upload', function(req, res){
-  if(!req.files)
+  if(!req.files && !req.body.param_script)
     res.json({
       success: false,
       message: 'No file uploaded.'
     });
 
+  var upload_path;
+
+  if(req.body.param_script && req.body.name){
+    upload_path = 'upload/'+req.body.name+'.js';
+    fs.writeFile(upload_path, req.body.param_script, function(err){
+      if(err)
+        throw(err);
+    })
+  }
+  if(req.files){
     //the name of the input field is used to retrieve the uploaded file
     let sampleFile = req.files.sampleFile;
 
+    //check if the file uploaded is html or javascript
+    if(sampleFile.mimetype != "text/html" && sampleFile.mimetype != "application/javascript"){
+      res.json({
+        success: false,
+        message: 'You can update only .html or .js files'
+      })
+    }
+
     //use the mv() method to place the file on server directory
-    var upload_path = './upload/file.txt';
+    upload_path = './upload/'+sampleFile.name;
     sampleFile.mv(upload_path, function(err){
       if(err)
         throw err;
     });
+  }
+  // create a sample script
+  var script = new Script({
+    users_id: req.query.user_id,
+    path: upload_path
+  });
 
-    // create a sample script
-    var script = new Script({
-      users_id: req.query.user_id,
-      path: upload_path
+  // save the sample script
+  script.save(function(err) {
+    if (err) throw err;
+
+    console.log('Script saved successfully');
+    res.json({
+      success: true,
+      message: 'File Uploaded!'
     });
-
-    // save the sample script
-    script.save(function(err) {
-      if (err) throw err;
-
-      console.log('Script saved successfully');
-      res.json({
-        success: true,
-        message: 'File Uploaded!'
-      });
-    });
+  });
 });
 
 // =======================
