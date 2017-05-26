@@ -33,24 +33,24 @@ app.controller('loginController', function ($scope, $rootScope, $state, $http, $
   $scope.loginUser = function() {
 
     $http({
-        method: 'POST',
-        url: path + "/authenticate",
-        data: $.param({ name: $scope.username, password: $scope.password }),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      method: 'POST',
+      url: path + "/authenticate",
+      data: $.param({ name: $scope.username, password: $scope.password }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
-        function(res) {
-          if (res.data.success) {
-            $localStorage.user = { token : res.data.token, name : $scope.username };
-            $rootScope.user = $localStorage.user;
-            $state.go("home");
-            Notification.success("Logged successfully");
-          }
-          else
-            Notification.error("Wrong username or password!");
-        },
-        function(err) {
-          Notification.error("Error!");
+      function(res) {
+        if (res.data.success) {
+          $localStorage.user = { token : res.data.token, name : $scope.username };
+          $rootScope.user = $localStorage.user;
+          $state.go("home");
+          Notification.success("Logged successfully");
         }
+        else
+          Notification.error("Wrong username or password!");
+      },
+      function(err) {
+        Notification.error("Error!");
+      }
     );
 
   };
@@ -58,14 +58,39 @@ app.controller('loginController', function ($scope, $rootScope, $state, $http, $
 
 app.controller('scriptsController', function ($scope, $http, $rootScope, $timeout, Notification, Upload) {
 
+  // init variables
   $scope.f = null;
   $scope.errFile = null;
 
+  // send script
+  $scope.uploadScript = function(scriptName, script) {
+
+    $http({
+      method: 'POST',
+      url: path + "/upload",
+      data: $.param({ param_script: script, name: scriptName }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).then(
+      function(res) {
+        if (res.data.success)
+          Notification.success("Script sent!");
+        else
+          Notification.error("Error!");
+      },
+      function(err) {
+        Notification.error("Error!");
+      }
+    );
+
+  };
+
+  // update file path
   $scope.setFile = function(file, errFiles) {
      $scope.f = file;
      $scope.errFile = errFiles && errFiles[0];
   };
 
+  // upload file
   $scope.uploadFile = function(file, errFiles) {
     if (file) {
         file.upload = Upload.upload({
@@ -76,6 +101,7 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $timeou
         file.upload.then(function (response) {
             $timeout(function () {
                 file.result = response.data;
+                Notification.success("Script uploaded!");
             });
         }, function (response) {
             if (response.status > 0)
@@ -85,6 +111,7 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $timeou
         });
     }
   };
+
 
 
 });

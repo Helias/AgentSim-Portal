@@ -1,19 +1,59 @@
 <div class="row">
-  <div class="col-xs-12 text-center">
-    <h2>Upload on file select</h2>
-    <button class="btn btn-lg btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js, .html">
-      Select File
-    </button>
-    <br><br>
-      <h4>{{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
+  <div class="col-sm-offset-2 col-sm-8 col-xs-12 text-center">
+
+    <uib-tabset active="activeJustified" justified="true">
+      <h2>Insert the script</h2>
       <br>
-      <button class="btn btn-lg btn-success" ng-click="uploadFile(f, errFile)">Upload script</button>
-      <div class="text-center" ng-show="f.progress >= 0">
+
+      <h3 class="pull-left">
+        <i class="glyphicon glyphicon-user"></i>
+        {{ (user.name == null || user.name == "") ? "Anonymous" : user.name }}
+      </h3>
+
+      <br><br>
+      <br><br>
+
+      <uib-tab index="0" heading="Script">
+        <br>
+
+        <form ng-submit="uploadScript(scriptName, script)">
+          <div class="form-inline">
+            <label><h4>Name:</h4></label>
+            <div class="form-group">
+              <input type="text" class="form-control" ng-model="scriptName" placeholder="name of the script.." required>
+            </div>
+          </div>
+
+          <br>
+          <textarea class="form-control script-area" ng-model="script" required></textarea>
+
+          <br><br>
+          <button type="submit" class="btn btn-md btn-success">Upload script</button>
+        </form>
+
+      </uib-tab>
+      <uib-tab index="1" heading="File">
+        <br>
+        <br>
+
+        <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js, .html">
+          Select File
+        </button>
         <br><br>
-        <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
-          <b>{{ f.progress }}%</b>
-        </uib-progressbar>
-      </div>
-    {{ errorMsg }}
+          <h4><i class="upload-icon glyphicon glyphicon-open-file"></i> {{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
+          <br>
+          <button class="btn btn-md btn-success" ng-show="f.name != null && f.name != ''" ng-click="uploadFile(f, errFile)">Upload script</button>
+          <br>
+          <div class="text-center" ng-show="f.progress >= 0">
+            <br><br>
+            <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
+              <b>{{ f.progress }}%</b>
+            </uib-progressbar>
+          </div>
+        {{ errorMsg }}
+
+      </uib-tab>
+    </uib-tabset>
+
   </div>
 </div>
