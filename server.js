@@ -262,10 +262,10 @@ apiRoutes.post('/upload', function(req, res){
     let sampleFile = req.files.sampleFile;
 
     //check if the file uploaded is html or javascript
-    if(sampleFile.mimetype != "text/html" && sampleFile.mimetype != "application/javascript"){
+    if(sampleFile.mimetype != "application/javascript"){
       res.json({
         success: false,
-        message: 'You can update only .html or .js files'
+        message: 'You can update only .js files'
       })
     }
 
