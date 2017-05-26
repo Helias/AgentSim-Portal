@@ -8,6 +8,7 @@ var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var fileUpload  = require('express-fileupload');
 var fs          = require('fs');
+var nodemailer  = require('nodemailer');
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
@@ -56,8 +57,9 @@ apiRoutes.get('/', function(req, res) {
 apiRoutes.post('/authenticate', function(req, res) {
 
   // find the user
+  console.log(req.body.name);
   User.findOne({
-    name: req.body.name
+    "name": req.body.name
   }, function(err, user) {
 
     if (err) throw err;
@@ -67,7 +69,14 @@ apiRoutes.post('/authenticate', function(req, res) {
         success: false,
         message: 'Authentication failed. User not found.'
       });
-    } else if (user) {
+    }
+    else if(user.blocked){
+      res.json({
+        success: false,
+        message: 'You have to verify your account first.'
+      });
+    }
+    else if (user) {
 
       // check if password matches
       if (user.password != req.body.password) {
@@ -75,7 +84,8 @@ apiRoutes.post('/authenticate', function(req, res) {
           success: false,
           message: 'Authentication failed. Wrong password.'
         });
-      } else {
+      }
+      else {
 
         // if user is found and password is right
         // create a token
@@ -131,17 +141,18 @@ apiRoutes.post('/authenticate', function(req, res) {
 // ######### API PROTECTED #########
 
 /*
- * /setup
+ * /register
  * name:      name of the user [string]
  * password:  password of the user [string]
+ * email: email of the user [string]
  */
-apiRoutes.get('/setup', function(req, res) {
+apiRoutes.post('/register', function(req, res) {
   // create a sample user
   var nick = new User({
-    name: req.query.name,
-    password: req.query.password,
-    surname: "",
-    nickname: "",
+    name: req.body.name,
+    password: req.body.password,
+    email: req.body.email,
+    blocked: true,
     admin: true
   });
 
@@ -150,9 +161,52 @@ apiRoutes.get('/setup', function(req, res) {
     if (err) throw err;
 
     console.log('User saved successfully');
-    res.json({ success: true });
   });
 
+  var id = nick._id;
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'alemidolo@gmail.com',
+      pass: 'Followthereaper'
+    }
+  });
+  var verify = 'http://localhost:8080/api/verify?token='+id;
+  console.log(nick.email);
+  var mailOptions = {
+    from: 'alemidolo@gmail.com',
+    to: nick.email,
+    subject: 'Verify your AgentSim account!',
+    text: verify
+  };
+
+  transporter.sendMail(mailOptions, function(err, info){
+    if(err)
+      throw(err);
+    else {
+      console.log('Message sent: ' +info.response);
+      res.json(info.response);
+    };
+  });
+});
+
+/*
+ * /verify
+ * user_id:      user's id to be verified [string]
+ */
+
+// route to verify an user's email
+apiRoutes.get('/verify', function(req,res){
+  var id_token = req.query.token;
+  console.log(id_token);
+  User.update({"_id": id_token}, {"$set": {"blocked": false}}, function(err){
+    if(err)
+      throw(err);
+  })
+  res.json({
+    success: true,
+    message: "User verified."
+  });
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
@@ -213,6 +267,14 @@ apiRoutes.post('/upload', function(req, res){
       if(err)
         throw err;
     });
+    /*fs.readFile(upload_path, function(err, data){
+      if(err)
+        throw(err)
+      else{
+        res.write(data);
+      }
+      res.end();
+    })*/
   }
   // create a sample script
   var script = new Script({
@@ -225,10 +287,6 @@ apiRoutes.post('/upload', function(req, res){
     if (err) throw err;
 
     console.log('Script saved successfully');
-    res.json({
-      success: true,
-      message: 'File Uploaded!'
-    });
   });
 });
 
