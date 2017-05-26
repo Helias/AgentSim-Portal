@@ -135,7 +135,6 @@ apiRoutes.post('/authenticate', function(req, res) {
  * name:      name of the user [string]
  * password:  password of the user [string]
  */
-
 apiRoutes.get('/setup', function(req, res) {
   // create a sample user
   var nick = new User({

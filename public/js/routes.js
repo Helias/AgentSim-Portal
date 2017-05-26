@@ -15,9 +15,9 @@ app.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: 'partials/login.html',
       controller: 'loginController'
    })
-   .state('page2', {
-      url: '/page2',
-      templateUrl: 'partials/page2.html',
-      controller: 'homeController'
+   .state('scripts', {
+      url: '/scripts',
+      templateUrl: 'partials/scripts.html',
+//      controller: 'homeController'
     });
 });

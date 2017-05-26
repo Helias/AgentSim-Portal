@@ -5,8 +5,15 @@ var app = angular.module('app', [ 'ui.router',
                                   'angular-loading-bar'
                                 ]);
 
-app.run(function($rootScope, $localStorage){
+app.run(function($rootScope, $localStorage, $state){
   $rootScope.user = ($localStorage.user != null && $localStorage.user.token != "") ? $localStorage.user : "";
+
+  $rootScope.logout = function() {
+    $rootScope.user = "";
+    $localStorage.user = "";
+    $state.go("login");
+  };
+
 });
 
 
