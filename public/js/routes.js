@@ -18,6 +18,6 @@ app.config(function($stateProvider, $urlRouterProvider) {
    .state('scripts', {
       url: '/scripts',
       templateUrl: 'partials/scripts.html',
-//      controller: 'homeController'
+      controller: 'scriptsController'
     });
 });

@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-xs-12 text-center">
+    <h2>Upload on file select</h2>
+    <button class="btn btn-lg btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js, .html">
+      Select File
+    </button>
+    <br><br>
+      <h4>{{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
+      <br>
+      <button class="btn btn-lg btn-success" ng-click="uploadFile(f, errFile)">Upload script</button>
+      <div class="text-center" ng-show="f.progress >= 0">
+        <br><br>
+        <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
+          <b>{{ f.progress }}%</b>
+        </uib-progressbar>
+      </div>
+    {{ errorMsg }}
+  </div>
+</div>
