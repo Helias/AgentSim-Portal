@@ -1,0 +1,13 @@
+.progress-script {
+  width: 300px;
+  margin: 0 auto;
+}
+
+.upload-icon {
+  font-size: 50px;
+  vertical-align: middle;
+}
+
+.script-area {
+  min-height: 350px;
+}

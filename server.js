@@ -232,7 +232,14 @@ apiRoutes.get('/scripts/:user', function(req, res){
   });
 });
 
-//route to upload new scripts
+
+/*
+ * /upload - route to upload new scripts
+ * param_script:  content of the script
+ * name:          name of the script
+ OR
+ * sampleFile: file.js/html that contain the script
+ */
 apiRoutes.post('/upload', function(req, res){
   if(!req.files && !req.body.param_script)
     res.json({
@@ -249,6 +256,7 @@ apiRoutes.post('/upload', function(req, res){
         throw(err);
     })
   }
+
   if(req.files){
     //the name of the input field is used to retrieve the uploaded file
     let sampleFile = req.files.sampleFile;
@@ -276,6 +284,7 @@ apiRoutes.post('/upload', function(req, res){
       res.end();
     })*/
   }
+
   // create a sample script
   var script = new Script({
     users_id: req.query.user_id,
