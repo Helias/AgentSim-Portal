@@ -107,7 +107,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 });
 
 // route middleware to verify a token
-/*apiRoutes.use(function(req, res, next) {
+apiRoutes.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -136,12 +136,13 @@ apiRoutes.post('/authenticate', function(req, res) {
     });
 
   }
-});*/
+});
 
 // ######### API PROTECTED #########
 
 /*
  * /register
+ *
  * name:      name of the user [string]
  * password:  password of the user [string]
  * email: email of the user [string]
@@ -191,11 +192,10 @@ apiRoutes.post('/register', function(req, res) {
 });
 
 /*
- * /verify
- * user_id:      user's id to be verified [string]
+ * /verify route to verify an user's email
+ *
+ * user_id:      user's id that needs to be verified [string]
  */
-
-// route to verify an user's email
 apiRoutes.get('/verify', function(req,res){
   var id_token = req.query.token;
   console.log(id_token);
@@ -209,22 +209,28 @@ apiRoutes.get('/verify', function(req,res){
   });
 });
 
-// route to return all users (GET http://localhost:8080/api/users)
+/*
+ * /users     route to return all users
+ */
 apiRoutes.get('/users', function(req, res) {
   User.find({}, function(err, users) {
     res.json(users);
   });
 });
 
-// route to return all scripts (GET http://localhost:8080/api/scripts)
+/*
+ * /scripts     route to return all scripts
+ */
 apiRoutes.get('/scripts', function(req, res){
   Script.find({}, function(err, scripts){
     res.json(scripts);
   });
 });
 
-//route to return all user's scripts (GET http://localhost:8080/api/scripts/:user)
-apiRoutes.get('/scripts/:user', function(req, res){
+/*
+ * /script/:user     route to return all user's scripts
+ */
+ apiRoutes.get('/scripts/:user', function(req, res){
   var user = req.params.user;
   console.log(user);
   Script.find({"users_id": user}, function(err, scripts){
@@ -234,11 +240,34 @@ apiRoutes.get('/scripts/:user', function(req, res){
 
 
 /*
+ * /livesim
+ *
+ * path:      script's path that needs to be read [string]
+ */
+apiRoutes.get('/livesim', function(req, res){
+  var html;
+  fs.readFile('./header.html', function(err, data){
+    if(err)
+      throw(err);
+    html = data;
+  });
+  fs.readFile(req.query.path, function(err, data){
+    if(err)
+      throw(err);
+
+    html = html.toString().replace("<script></script>", data);
+    res.write(html);
+    res.end();
+  });
+});
+
+/*
  * /upload - route to upload new scripts
+ *
  * param_script:  content of the script
  * name:          name of the script
  OR
- * sampleFile: file.js/html that contain the script
+ * sampleFile: file.js that contain the script
  */
 apiRoutes.post('/upload', function(req, res){
   if(!req.files && !req.body.param_script)
@@ -257,7 +286,7 @@ apiRoutes.post('/upload', function(req, res){
     })
   }
 
-  if(req.files){
+  else{
     //the name of the input field is used to retrieve the uploaded file
     let sampleFile = req.files.sampleFile;
 
@@ -275,14 +304,6 @@ apiRoutes.post('/upload', function(req, res){
       if(err)
         throw err;
     });
-    /*fs.readFile(upload_path, function(err, data){
-      if(err)
-        throw(err)
-      else{
-        res.write(data);
-      }
-      res.end();
-    })*/
   }
 
   // create a sample script
