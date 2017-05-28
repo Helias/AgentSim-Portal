@@ -15,6 +15,11 @@ app.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: 'partials/login.html',
       controller: 'loginController'
    })
+   .state('register', {
+      url: '/register',
+      templateUrl: 'partials/register.html',
+      controller: 'registerController'
+    })
    .state('scripts', {
       url: '/scripts',
       templateUrl: 'partials/scripts.html',

@@ -145,7 +145,7 @@ apiRoutes.post('/authenticate', function(req, res) {
  *
  * name:      name of the user [string]
  * password:  password of the user [string]
- * email: email of the user [string]
+ * email:     email of the user [string]
  */
 apiRoutes.post('/register', function(req, res) {
   // create a sample user
@@ -194,7 +194,7 @@ apiRoutes.post('/register', function(req, res) {
 /*
  * /verify route to verify an user's email
  *
- * user_id:      user's id that needs to be verified [string]
+ * user_id: user's id that needs to be verified [string]
  */
 apiRoutes.get('/verify', function(req,res){
   var id_token = req.query.token;
@@ -202,7 +202,8 @@ apiRoutes.get('/verify', function(req,res){
   User.update({"_id": id_token}, {"$set": {"blocked": false}}, function(err){
     if(err)
       throw(err);
-  })
+  });
+
   res.json({
     success: true,
     message: "User verified."
