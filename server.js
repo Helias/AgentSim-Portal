@@ -107,7 +107,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 });
 
 // route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
+/*apiRoutes.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -136,7 +136,7 @@ apiRoutes.use(function(req, res, next) {
     });
 
   }
-});
+});*/
 
 // ######### API PROTECTED #########
 
@@ -220,11 +220,14 @@ apiRoutes.get('/users', function(req, res) {
 
 /*
  * /scripts     route to return all scripts
+ *
+ *  from:  starting point to see the number of scripts. example: from=20 => it will show scripts from 20 to 40
  */
 apiRoutes.get('/scripts', function(req, res){
+
   Script.find({}, function(err, scripts){
     res.json(scripts);
-  });
+  }).skip(req.query.from);
 });
 
 /*
@@ -242,7 +245,7 @@ apiRoutes.get('/scripts', function(req, res){
 /*
  * /livesim
  *
- * path:      script's path that needs to be read [string]
+ * path:    E  script's path that needs to be read [string]
  */
 apiRoutes.get('/livesim', function(req, res){
   var html;
