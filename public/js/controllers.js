@@ -38,7 +38,7 @@ app.controller('loginController', function ($scope, $rootScope, $state, $http, $
 
 app.controller('registerController', function ($scope, $http, Notification) {
 
-  $scope.show_alert = false;
+  $scope.alertMessage = "";
 
   $scope.registerUser = function() {
 
@@ -49,17 +49,21 @@ app.controller('registerController', function ($scope, $http, Notification) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
       function(res) {
-        if (res.data.success)
+        if (res.data.success) {
           Notification.success("Registered successfully check email!");
-        else
-          Notification.error("Error during the registration");
+          $scope.alertMessage = "Registered successfully! Check email!";
+        }
+        else {
+          Notification.error("Error during the registration!");
+          $scope.alertMessage = "Error during the registration!";
+        }
       },
       function(err) {
         Notification.error("Error!");
+        $scope.alertMessage = "Registered successfully! Check email!";
       }
     );
 
-    $scope.show_alert = true;
   };
 
 });

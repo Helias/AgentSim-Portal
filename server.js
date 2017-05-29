@@ -172,6 +172,7 @@ apiRoutes.post('/register', function(req, res) {
       pass: 'Followthereaper'
     }
   });
+
   var verify = 'http://localhost:8080/api/verify?token='+id;
   console.log(nick.email);
   var mailOptions = {
