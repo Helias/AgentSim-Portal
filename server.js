@@ -107,7 +107,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 });
 
 // route middleware to verify a token
-/*apiRoutes.use(function(req, res, next) {
+apiRoutes.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -136,7 +136,7 @@ apiRoutes.post('/authenticate', function(req, res) {
     });
 
   }
-});*/
+});
 
 // ######### API PROTECTED #########
 
@@ -168,8 +168,8 @@ apiRoutes.post('/register', function(req, res) {
   var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'alemidolo@gmail.com',
-      pass: 'Followthereaper'
+      user: 'agentsimjs@gmail.com',
+      pass: 'A1g2e3n4t5'
     }
   });
 
