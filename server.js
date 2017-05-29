@@ -41,6 +41,28 @@ var apiRoutes = express.Router();
 
 // ######### PUBLIC API #########
 
+/*
+ * /livesim
+ *
+ * path:    E  script's path that needs to be read [string]
+ */
+app.get('/agentsim/livesim', function(req, res){
+  var html;
+  fs.readFile('./header.html', function(err, data){
+    if(err)
+      throw(err);
+    html = data;
+  });
+  fs.readFile("upload/" + req.query.path, function(err, data){
+    if(err)
+      throw(err);
+
+    html = html.toString().replace("<script></script>", "<script>" + data + "</script>");
+    res.write(html);
+    res.end();
+  });
+});
+
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
 
@@ -106,40 +128,6 @@ apiRoutes.post('/authenticate', function(req, res) {
   });
 });
 
-// route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
-
-  // check header or url parameters or post parameters for token
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-  // decode token
-  if (token) {
-
-    // verifies secret and checks exp
-    jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-      if (err) {
-        return res.json({ success: false, message: 'Failed to authenticate token.' });
-      } else {
-        // if everything is good, save to request for use in other routes
-        req.decoded = decoded;
-        next();
-      }
-    });
-
-  } else {
-
-    // if there is no token
-    // return an error
-    return res.status(403).send({
-        success: false,
-        message: 'No token provided.'
-    });
-
-  }
-});
-
-// ######### API PROTECTED #########
-
 /*
  * /register
  *
@@ -168,15 +156,15 @@ apiRoutes.post('/register', function(req, res) {
   var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'agentsimjs@gmail.com',
-      pass: 'A1g2e3n4t5'
+      user: config.email,
+      pass: config.password
     }
   });
 
   var verify = 'http://localhost:8080/api/verify?token='+id;
   console.log(nick.email);
   var mailOptions = {
-    from: 'agentsimjs@gmail.com',
+    from: 'alemidolo@gmail.com',
     to: nick.email,
     subject: 'Verify your AgentSim account!',
     text: verify
@@ -210,6 +198,43 @@ apiRoutes.get('/verify', function(req,res){
     message: "User verified."
   });
 });
+/*
+// route middleware to verify a token
+apiRoutes.use(function(req, res, next) {
+
+  // check header or url parameters or post parameters for token
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+  // decode token
+  if (token) {
+
+    // verifies secret and checks exp
+    jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+      if (err) {
+        return res.json({ success: false, message: 'Failed to authenticate token.' });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        console.log("#############");
+        console.log(decoded);
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+    // return an error
+    return res.status(403).send({
+        success: false,
+        message: 'No token provided.'
+    });
+
+  }
+});
+*/
+
+// ######### API PROTECTED #########
 
 /*
  * /users     route to return all users
@@ -244,27 +269,6 @@ apiRoutes.get('/scripts', function(req, res){
 });
 
 
-/*
- * /livesim
- *
- * path:    E  script's path that needs to be read [string]
- */
-apiRoutes.get('/livesim', function(req, res){
-  var html;
-  fs.readFile('./header.html', function(err, data){
-    if(err)
-      throw(err);
-    html = data;
-  });
-  fs.readFile(req.query.path, function(err, data){
-    if(err)
-      throw(err);
-
-    html = html.toString().replace("<script></script>", data);
-    res.write(html);
-    res.end();
-  });
-});
 
 /*
  * /upload - route to upload new scripts
