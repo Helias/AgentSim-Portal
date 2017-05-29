@@ -10,6 +10,7 @@
 
     <!-- JavaScript -->
     <script src="lib/js/jquery.min.js"></script>
+    <script src="lib/js/githubinfowidget.js"></script>
     <script src="lib/js/angular.min.js"></script>
     <script src="lib/js/angular-ui-router.min.js"></script>
     <script src="lib/js/ui-bootstrap.min.js"></script>
@@ -28,6 +29,7 @@
     <link rel="stylesheet" href="lib/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="lib/css/angular-ui-notification.min.css">
     <link rel="stylesheet" href="lib/css/loading-bar.css">
+    <link rel="stylesheet" href="lib/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="css/style.css">
 
@@ -45,7 +47,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">AgentSim Portal</a>
+          <a class="navbar-brand" href="#!/home">AgentSim Portal</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -69,13 +71,7 @@
       </div><!-- /.container-fluid -->
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-          <div ui-view></div>
-        </div>
-      </div>
-    </div>
+    <div ui-view></div>
 
   </body>
 </html>

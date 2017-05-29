@@ -1,5 +1,10 @@
 app.controller('homeController', function ($scope) {
-  $scope.helloworld = "Hello world by AngularJS";
+
+  $(function() {
+    $('#commits').githubInfoWidget(
+      { user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
+  });
+
 });
 
 app.controller('loginController', function ($scope, $rootScope, $state, $http, $localStorage, Notification) {
@@ -68,7 +73,7 @@ app.controller('registerController', function ($scope, $http, Notification) {
 
 });
 
-app.controller('scriptsController', function ($scope, $http, $rootScope, $timeout, Notification, Upload) {
+app.controller('scriptsController', function ($scope, $http, $rootScope, $localStorage, $timeout, Notification, Upload) {
 
   // init variables
   $scope.f = null;
@@ -80,7 +85,7 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $timeou
     $http({
       method: 'POST',
       url: path + "/upload",
-      data: $.param({ param_script: script, name: scriptName }),
+      data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
       function(res) {
@@ -107,7 +112,7 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $timeou
     if (file) {
         file.upload = Upload.upload({
             url: path + "/upload",
-            data: { sampleFile: file }
+            data: { sampleFile: file, token: $localStorage.user.token}
         });
 
         file.upload.then(function (response) {

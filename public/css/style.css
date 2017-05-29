@@ -1,3 +1,7 @@
+.home {
+  background: radial-gradient(white, #ffff00);
+}
+
 .progress-script {
   width: 300px;
   margin: 0 auto;
