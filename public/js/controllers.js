@@ -19,7 +19,7 @@ app.controller('loginController', function ($scope, $rootScope, $state, $http, $
 
     $http({
       method: 'POST',
-      url: path + "/authenticate",
+      url: path + "api/authenticate",
       data: $.param({ name: $scope.username, password: $scope.password }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
@@ -49,7 +49,7 @@ app.controller('registerController', function ($scope, $http, Notification) {
 
     $http({
       method: 'POST',
-      url: path + "/register",
+      url: path + "api/register",
       data: $.param({ email: $scope.email , name: $scope.username, password: $scope.password }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
@@ -79,12 +79,29 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
   $scope.f = null;
   $scope.errFile = null;
 
+  // show scripts
+  $scope.showScripts = function() {
+    $http.get(path + "api/scripts")
+      .then(function(res) {
+
+        $scope.scripts = res.data;
+        for (var i in $scope.scripts)
+          $scope.scripts[i].creation = new Date($scope.scripts[i].creation);
+
+        console.log(new Date($scope.scripts[0].creation));
+
+      }, function(res) {
+        console.log("http error!");
+    });
+  };
+  $scope.showScripts();
+
   // send script
   $scope.uploadScript = function(scriptName, script) {
 
     $http({
       method: 'POST',
-      url: path + "/upload",
+      url: path + "api/upload",
       data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
@@ -111,7 +128,7 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
   $scope.uploadFile = function(file, errFiles) {
     if (file) {
         file.upload = Upload.upload({
-            url: path + "/upload",
+            url: path + "api/upload",
             data: { sampleFile: file, token: $localStorage.user.token}
         });
 

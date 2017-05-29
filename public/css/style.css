@@ -15,3 +15,10 @@
 .script-area {
   min-height: 350px;
 }
+
+.play {
+  display: inline;
+  vertical-align: middle;
+}
+
+.nodecoration { text-decoration: none !important; }

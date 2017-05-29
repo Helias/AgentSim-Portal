@@ -6,7 +6,7 @@ var app = angular.module('app', [ 'ui.router',
                                   'ngFileUpload'
                                 ]);
 
-var path = "http://localhost:8080/api";
+var path = "http://localhost:8080/";
 
 app.run(function($rootScope, $localStorage, $state){
   $rootScope.user = ($localStorage.user != null && $localStorage.user.token != "") ? $localStorage.user : "";

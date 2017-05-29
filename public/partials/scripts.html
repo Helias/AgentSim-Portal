@@ -1,19 +1,48 @@
 <div class="row">
-  <div class="col-sm-offset-2 col-sm-8 col-xs-12 text-center">
+  <div class="col-sm-offset-2 col-sm-8 col-xs-12 text-center" style="border: 2px solid #ededed">
 
     <uib-tabset active="activeJustified" justified="true">
-      <h2>Insert the script</h2>
-      <br>
-
       <h3 class="pull-left">
         <i class="glyphicon glyphicon-user"></i>
-        {{ (user.name == null || user.name == "") ? "Anonymous" : user.name }}
+        <span ng-show="user.name == null || user.name == ''">You are Anonymous! <a ng-href="#!/register">Register!</a></span>
+        <span ng-show="!(user.name == null || user.name == '')">{{ user.name }}</span>
       </h3>
 
       <br><br>
       <br><br>
 
-      <uib-tab index="0" heading="Script">
+      <uib-tab index="0" heading="Script" ng-click="showScripts()">
+
+        <table class="table table-striped">
+          <thead>
+            <td>User</td>
+            <td>Script</td>
+            <td>Date</td>
+          </thead>
+          <tbody>
+            <tr ng-repeat="script in scripts track by $index">
+              <td>{{ script._id }}</td>
+              <td>
+                <b class="text-primary">{{ script.path.replace("./upload/", "") }}</b>
+                &nbsp;
+                <a href="agentsim/livesim?path={{script.path.replace('./upload/', '')}}" target="_blank" class="nodecoration">
+                  <h4 class="text-success play">
+                    <i class="glyphicon glyphicon-play-circle"></i>
+                  </h4>
+                </a>
+                &nbsp;
+                <h4 class="text-info play">
+                  <i class="glyphicon glyphicon-edit"></i>
+                </h4>
+              </td>
+              <td>{{ script.creation.getDate() + "/" + script.creation.getMonth() + "/" + script.creation.getFullYear() }}</td>
+            </tr>
+          </tobdy>
+        </table>
+
+      </uib-tab>
+
+      <uib-tab index="1" heading="Create script">
         <br>
 
         <form ng-submit="uploadScript(scriptName, script)">
@@ -31,12 +60,15 @@
           <button type="submit" class="btn btn-md btn-success">Upload script</button>
         </form>
 
+        <br><br>
+
       </uib-tab>
-      <uib-tab index="1" heading="File">
+
+      <uib-tab index="2" heading="Upload your script">
         <br>
         <br>
 
-        <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js, .html">
+        <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js">
           Select File
         </button>
         <br><br>
@@ -52,6 +84,7 @@
           </div>
         {{ errorMsg }}
 
+        <br><br>
       </uib-tab>
     </uib-tabset>
 
