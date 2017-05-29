@@ -176,7 +176,7 @@ apiRoutes.post('/register', function(req, res) {
   var verify = 'http://localhost:8080/api/verify?token='+id;
   console.log(nick.email);
   var mailOptions = {
-    from: 'alemidolo@gmail.com',
+    from: 'agentsimjs@gmail.com',
     to: nick.email,
     subject: 'Verify your AgentSim account!',
     text: verify
