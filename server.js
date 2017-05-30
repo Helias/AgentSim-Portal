@@ -151,7 +151,7 @@ apiRoutes.post('/register', function(req, res, next) {
       next();
     }
   });
-}, function(req, res, next){
+},function(req, res, next){
       User.find({name: req.body.name}, function(err, users) {
         if(err)
           throw(err);
@@ -165,7 +165,7 @@ apiRoutes.post('/register', function(req, res, next) {
           next();
         }
       });
-  }, function(req, res, next){
+  },function(req, res, next){
       var nick = new User({
         name: req.body.name,
         password: req.body.password,
@@ -402,7 +402,7 @@ apiRoutes.post('/upload', function(req, res, next){
       }
     });
   }
-}, function(req, res, next){
+},function(req, res, next){
     var tmp = req.id;
     var name = req.name;
     // create a sample script
@@ -426,7 +426,80 @@ apiRoutes.post('/upload', function(req, res, next){
   }
 );
 
-apiRoutes.get
+/*
+ * /modify     route to modify a script
+ *
+ * token: user's token [token]
+ * id_script: script's id
+ * name: the new name the user want to give to own script
+ * value: the new modified text of the script
+ *
+ */
+
+apiRoutes.post('/modify', function(req, res, next){
+  var token = req.body.token;
+
+  jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+    if (err) {
+      return res.json({ success: false, message: 'Failed to authenticate token.' });
+    }
+    else {
+      req.tmp = decoded._doc.name;
+      next();
+    }
+  });
+},function(req, res, next){
+    Script.find({ $and: [ {_id: req.body.id_script}, {owner: req.tmp} ]}, function(err, users){
+      if(err)
+        throw(err);
+      else{
+        if(!users[0])
+          res.json({
+            success: false,
+            message: "You're not the owner of this script"
+          })
+        else{
+          req.script_name = users[0].path;
+          next();
+        }
+      }
+    })
+  },function(req, res, next){
+      if(req.body.name){
+        Script.update({"_id": req.body.id_script}, {"$set": {"path": req.body.name+".js"}}, function(err){
+          if(err)
+            throw(err);
+          else{
+            fs.rename('./upload/'+req.script_name, './upload/'+req.body.name+".js", function(err){
+              if(err)
+                throw(err);
+              else{
+                req.script_name = req.body.name;
+                console.log("Name updated");
+                next();
+              }
+            });
+          }
+        });
+      }
+      else
+        next();
+    },function(req, res, next){
+        if(req.body.value){
+          fs.writeFile('upload/'+req.script_name+".js", req.body.value, function(err){
+            if(err)
+              throw(err);
+            else{
+              console.log("File updated");
+            }
+          })
+        }
+        res.json({
+          success: true,
+          message: "File updated"
+        })
+    }
+);
 
 // =======================
 // start the server ======
