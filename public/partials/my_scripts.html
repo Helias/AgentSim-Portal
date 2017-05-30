@@ -5,7 +5,6 @@
       <uib-tabset active="activeJustified" justified="true">
         <h3 class="pull-left">
           <i class="glyphicon glyphicon-user"></i>
-          <span ng-show="user.name == null || user.name == ''">You are Anonymous! <a ng-href="#!/register">Register!</a></span>
           <span ng-show="!(user.name == null || user.name == '')">{{ user.name }}</span>
         </h3>
 
@@ -65,28 +64,6 @@
 
         </uib-tab>
 
-        <uib-tab index="2" heading="Upload your script">
-          <br>
-          <br>
-
-          <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js">
-            Select File
-          </button>
-          <br><br>
-            <h4><i class="upload-icon glyphicon glyphicon-open-file"></i> {{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
-            <br>
-            <button class="btn btn-md btn-success" ng-show="f.name != null && f.name != ''" ng-click="uploadFile(f, errFile)">Upload script</button>
-            <br>
-            <div class="text-center" ng-show="f.progress >= 0">
-              <br><br>
-              <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
-                <b>{{ f.progress }}%</b>
-              </uib-progressbar>
-            </div>
-          {{ errorMsg }}
-
-          <br><br>
-        </uib-tab>
       </uib-tabset>
 
     </div>

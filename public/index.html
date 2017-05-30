@@ -54,6 +54,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             <li><a href="#!/scripts">Scripts</a></li>
+            <li ng-show="!(user.name == null || user.name == '')"><a href="#!/my_scripts">My Scripts</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li>

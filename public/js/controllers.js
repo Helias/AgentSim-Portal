@@ -1,8 +1,7 @@
 app.controller('homeController', function ($scope) {
 
   $(function() {
-    $('#commits').githubInfoWidget(
-      { user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
+    $('#commits').githubInfoWidget({ user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
   });
 
 });
@@ -88,8 +87,6 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
         for (var i in $scope.scripts)
           $scope.scripts[i].creation = new Date($scope.scripts[i].creation);
 
-        console.log(new Date($scope.scripts[0].creation));
-
       }, function(res) {
         console.log("http error!");
     });
@@ -145,5 +142,43 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
         });
     }
   };
+
+});
+
+
+app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $localStorage, $timeout, Notification, Upload) {
+
+  if ($rootScope.user.name == null || $rootScope.user.name == '')
+    $state.go("home");
+
+  $http.get(path + "api/scripts/" + $rootScope.user.name)
+    .then(function(res) {
+
+      $scope.scripts = res.data;
+      for (var i in $scope.scripts)
+        $scope.scripts[i].creation = new Date($scope.scripts[i].creation);
+
+    }, function(res) {
+      console.log("http error!");
+  });
+
+/*
+  $http({
+    method: 'POST',
+    url: path + "api/upload",
+    data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  }).then(
+    function(res) {
+      if (res.data.success)
+        Notification.success("Script sent!");
+      else
+        Notification.error("Error!");
+    },
+    function(err) {
+      Notification.error("Error!");
+    }
+  );
+*/
 
 });
