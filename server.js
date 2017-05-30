@@ -320,7 +320,7 @@ apiRoutes.get('/scripts', function(req, res){
 
   Script.find({}, function(err, scripts){
     res.json(scripts);
-  }).skip(req.query.from);
+  }).skip(req.query.from).sort({creation: -1});
 });
 
 /*
@@ -329,9 +329,9 @@ apiRoutes.get('/scripts', function(req, res){
  apiRoutes.get('/scripts/:user', function(req, res){
   var user = req.params.user;
   console.log(user);
-  Script.find({"users_id": user}, function(err, scripts){
+  Script.find({owner: user}, function(err, scripts){
     res.json(scripts);
-  });
+  }).sort({creation: -1});
 });
 
 
