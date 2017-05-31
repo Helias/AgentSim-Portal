@@ -179,14 +179,15 @@ apiRoutes.post('/register', function(req, res, next) {
         }
       });
   },function(req, res, next){
-      var nick = new User({
-        name: req.body.name,
-        password: req.body.password,
-        email: req.body.email,
-        blocked: true,
-        admin: true
-      });
+    var nick = new User({
+      name: req.body.name,
+      password: req.body.password,
+      email: req.body.email,
+      blocked: true,
+      admin: true
+    });
 
+<<<<<<< HEAD
       // save the sample user
       nick.save(function(err) {
         if (err) throw err;
@@ -196,24 +197,33 @@ apiRoutes.post('/register', function(req, res, next) {
         })
         console.log('User saved successfully');
       });
+=======
+    // save the sample user
+    nick.save(function(err) {
+      if (err) throw err;
 
-      var id = nick._id;
-      var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: config.email,
-          pass: config.password
-        }
-      });
+      console.log('User saved successfully');
+    });
+>>>>>>> 6b26eeff424fde29ecabce0fa2b358ed4ad9d36e
 
-      var verify = 'http://localhost:8080/api/verify?token='+id;
-      var mailOptions = {
-        from: 'agentsimjs@gmail.com',
-        to: nick.email,
-        subject: 'Verify your AgentSim account!',
-        text: verify
-      };
+    var id = nick._id;
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: config.email,
+        pass: config.password
+      }
+    });
 
+    var verify = 'http://localhost:8080/api/verify?token='+id;
+    var mailOptions = {
+      from: config.email,
+      to: nick.email,
+      subject: 'Verify your AgentSim account!',
+      text: verify
+    };
+
+<<<<<<< HEAD
       transporter.sendMail(mailOptions, function(err, info){
         if(err)
           throw(err);
@@ -226,6 +236,16 @@ apiRoutes.post('/register', function(req, res, next) {
         };
       });
       return;
+=======
+    transporter.sendMail(mailOptions, function(err, info){
+      if(err)
+        throw(err);
+      else {
+        console.log('Message sent: ' +info.response);
+        res.json(info.response);
+      };
+    });
+>>>>>>> 6b26eeff424fde29ecabce0fa2b358ed4ad9d36e
   }
 );
 

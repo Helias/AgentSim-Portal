@@ -1,8 +1,7 @@
 app.controller('homeController', function ($scope) {
 
   $(function() {
-    $('#commits').githubInfoWidget(
-      { user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
+    $('#commits').githubInfoWidget({ user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
   });
 
 });
@@ -55,12 +54,12 @@ app.controller('registerController', function ($scope, $http, Notification) {
     }).then(
       function(res) {
         if (res.data.success) {
-          Notification.success("Registered successfully check email!");
-          $scope.alertMessage = "Registered successfully! Check email!";
+          Notification.success(res.data.message);
+          $scope.alertMessage = res.data.message;
         }
         else {
-          Notification.error("Error during the registration!");
-          $scope.alertMessage = "Error during the registration!";
+          Notification.error(res.data.message);
+          $scope.alertMessage = res.data.message;
         }
       },
       function(err) {
@@ -81,14 +80,12 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
 
   // show scripts
   $scope.showScripts = function() {
-    $http.get(path + "api/scripts")
+    $http.get(path + "api/scripts" + "?token=" + $localStorage.user.token)
       .then(function(res) {
 
         $scope.scripts = res.data;
         for (var i in $scope.scripts)
           $scope.scripts[i].creation = new Date($scope.scripts[i].creation);
-
-        console.log(new Date($scope.scripts[0].creation));
 
       }, function(res) {
         console.log("http error!");
@@ -145,5 +142,45 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
         });
     }
   };
+
+});
+
+
+app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $localStorage, $timeout, Notification, Upload) {
+
+  if ($rootScope.user.name == null || $rootScope.user.name == '')
+    $state.go("home");
+
+  $scope.showScripts = function() {
+    $http.get(path + "api/scripts/" + $rootScope.user.name + "?token=" + $localStorage.user.token)
+      .then(function(res) {
+
+        $scope.scripts = res.data;
+        for (var i in $scope.scripts)
+          $scope.scripts[i].creation = new Date($scope.scripts[i].creation);
+
+      }, function(res) {
+        console.log("http error!");
+    });
+  };
+
+/*
+  $http({
+    method: 'POST',
+    url: path + "api/upload",
+    data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  }).then(
+    function(res) {
+      if (res.data.success)
+        Notification.success("Script sent!");
+      else
+        Notification.error("Error!");
+    },
+    function(err) {
+      Notification.error("Error!");
+    }
+  );
+*/
 
 });
