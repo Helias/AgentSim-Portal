@@ -166,47 +166,46 @@ apiRoutes.post('/register', function(req, res, next) {
         }
       });
   },function(req, res, next){
-      var nick = new User({
-        name: req.body.name,
-        password: req.body.password,
-        email: req.body.email,
-        blocked: true,
-        admin: true
-      });
+    var nick = new User({
+      name: req.body.name,
+      password: req.body.password,
+      email: req.body.email,
+      blocked: true,
+      admin: true
+    });
 
-      // save the sample user
-      nick.save(function(err) {
-        if (err) throw err;
+    // save the sample user
+    nick.save(function(err) {
+      if (err) throw err;
 
-        console.log('User saved successfully');
-      });
+      console.log('User saved successfully');
+    });
 
-      var id = nick._id;
-      var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: config.email,
-          pass: config.password
-        }
-      });
+    var id = nick._id;
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: config.email,
+        pass: config.password
+      }
+    });
 
-      var verify = 'http://localhost:8080/api/verify?token='+id;
-      var mailOptions = {
-        from: 'agentsimjs@gmail.com',
-        to: nick.email,
-        subject: 'Verify your AgentSim account!',
-        text: verify
+    var verify = 'http://localhost:8080/api/verify?token='+id;
+    var mailOptions = {
+      from: config.email,
+      to: nick.email,
+      subject: 'Verify your AgentSim account!',
+      text: verify
+    };
+
+    transporter.sendMail(mailOptions, function(err, info){
+      if(err)
+        throw(err);
+      else {
+        console.log('Message sent: ' +info.response);
+        res.json(info.response);
       };
-
-      transporter.sendMail(mailOptions, function(err, info){
-        if(err)
-          throw(err);
-        else {
-          console.log('Message sent: ' +info.response);
-          res.json(info.response);
-        };
-      });
-      return;
+    });
   }
 );
 
