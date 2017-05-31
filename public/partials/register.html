@@ -1,18 +1,20 @@
-<div class="row">
-  <div class="col-md-offset-4 col-md-4 col-sm-offset-3 col-sm-6 col-xs-offset-2 col-xs-8 text-center">
-    <form class="form-signin" ng-submit="registerUser()" >
-      <h2 class="form-signin-heading"><i class="glyphicon glyphicon-pencil"></i> Register</h2>
-      <h4 class="pull-left">&nbsp; Email:</h4>
-      <input type="email" ng-model="email" class="form-control" placeholder="Email@example.com" required autofocus>
-      <h4 class="pull-left">&nbsp; Username:</h4>
-      <input type="text" ng-model="username" class="form-control" placeholder="Username" required>
-      <h4 class="pull-left">&nbsp; Password:</h4>
-      <input type="password" ng-model="password" class="form-control" placeholder="Password" required>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-offset-4 col-md-4 col-sm-offset-3 col-sm-6 col-xs-offset-2 col-xs-8 text-center">
+      <form class="form-signin" ng-submit="registerUser()" >
+        <h2 class="form-signin-heading"><i class="glyphicon glyphicon-pencil"></i> Register</h2>
+        <h4 class="pull-left">&nbsp; Email:</h4>
+        <input type="email" ng-model="email" class="form-control" placeholder="Email@example.com" required autofocus>
+        <h4 class="pull-left">&nbsp; Username:</h4>
+        <input type="text" ng-model="username" class="form-control" placeholder="Username" required>
+        <h4 class="pull-left">&nbsp; Password:</h4>
+        <input type="password" ng-model="password" class="form-control" placeholder="Password" required>
+        <br>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+        <br>
+        <uib-alert type="success">{{ alertMessage }}</uib-alert>
+      </form>
       <br>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-      <br>
-      <uib-alert type="success">{{ alertMessage }}</uib-alert>
-    </form>
-    <br>
+    </div>
   </div>
 </div>
