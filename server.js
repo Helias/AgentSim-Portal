@@ -187,24 +187,15 @@ apiRoutes.post('/register', function(req, res, next) {
       admin: true
     });
 
-<<<<<<< HEAD
-      // save the sample user
-      nick.save(function(err) {
-        if (err) throw err;
-        res.json({
-          success: true,
-          message: "Utente registrato con successo!"
-        })
-        console.log('User saved successfully');
-      });
-=======
     // save the sample user
     nick.save(function(err) {
       if (err) throw err;
-
+      res.json({
+        success: true,
+        message: "Utente registrato con successo!"
+      })
       console.log('User saved successfully');
     });
->>>>>>> 6b26eeff424fde29ecabce0fa2b358ed4ad9d36e
 
     var id = nick._id;
     var transporter = nodemailer.createTransport({
@@ -223,29 +214,17 @@ apiRoutes.post('/register', function(req, res, next) {
       text: verify
     };
 
-<<<<<<< HEAD
-      transporter.sendMail(mailOptions, function(err, info){
-        if(err)
-          throw(err);
-        else {
-          console.log('Message sent: ' +info.response);
-          res.json({
-            success: true,
-            message: "Email di conferma inviata con successo!"
-          });
-        };
-      });
-      return;
-=======
     transporter.sendMail(mailOptions, function(err, info){
       if(err)
         throw(err);
       else {
         console.log('Message sent: ' +info.response);
-        res.json(info.response);
+        res.json({
+          success: true,
+          message: "Email di conferma inviata con successo!"
+        });
       };
     });
->>>>>>> 6b26eeff424fde29ecabce0fa2b358ed4ad9d36e
   }
 );
 
