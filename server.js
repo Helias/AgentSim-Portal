@@ -45,24 +45,37 @@ var apiRoutes = express.Router();
 /*
  * /livesim
  *
- * path:    E  script's path that needs to be read [string]
+ * path:    the script's path that needs to be read [string]
+ * data:    the script's text
+ *
  */
-app.get('/agentsim/livesim', function(req, res){
-  var html;
+app.post('/agentsim/livesim', function(req, res, next){
   fs.readFile('./header.html', function(err, data){
     if(err)
       throw(err);
-    html = data;
+    req.script = data;
+    next();
   });
-  fs.readFile("upload/" + req.query.path, function(err, data){
-    if(err)
-      throw(err);
-
-    html = html.toString().replace("<script></script>", "<script>" + data + "</script>");
-    res.write(html);
-    res.end();
-  });
-});
+},function(req, res, next){
+    if(req.body.path){
+      fs.readFile("upload/" + req.body.path, function(err, data){
+        if(err)
+          throw(err);
+        var html = req.script.toString().replace("<script></script>", "<script>" + data + "</script>");
+        res.write(html);
+        res.end();
+      });
+    }
+    else
+      next();
+  },function(req, res, next){
+      if(req.body.data){
+        var html = req.script.toString().replace("<script></script>", "<script>" + req.body.data + "</script>");
+        res.write(html);
+        res.end();
+      }
+    }
+);
 
 // apply the routes to our application with the prefix /api
 app.use('/api', apiRoutes);
@@ -177,7 +190,10 @@ apiRoutes.post('/register', function(req, res, next) {
       // save the sample user
       nick.save(function(err) {
         if (err) throw err;
-
+        res.json({
+          success: true,
+          message: "Utente registrato con successo!"
+        })
         console.log('User saved successfully');
       });
 
@@ -203,7 +219,10 @@ apiRoutes.post('/register', function(req, res, next) {
           throw(err);
         else {
           console.log('Message sent: ' +info.response);
-          res.json(info.response);
+          res.json({
+            success: true,
+            message: "Email di conferma inviata con successo!"
+          });
         };
       });
       return;
