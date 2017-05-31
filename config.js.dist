@@ -2,5 +2,6 @@ module.exports = {
     'secret': 'secretstring',
     'database': "mongodb://user:pass@example.com:1234/database",
     'email': 'user@gmail.com',
-    'password': 'password'
+    'password': 'password',
+    'verify': 'verify's path'
 };

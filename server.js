@@ -168,7 +168,6 @@ apiRoutes.post('/register', function(req, res, next) {
       User.find({name: req.body.name}, function(err, users) {
         if(err)
           throw(err);
-        console.log(users[0]);
         if(users[0])
           return res.json({
             success: false,
@@ -206,7 +205,7 @@ apiRoutes.post('/register', function(req, res, next) {
       }
     });
 
-    var verify = 'http://localhost:8080/api/verify?token='+id;
+    var verify = config.verify+ '/api/verify?token=' +id;
     var mailOptions = {
       from: config.email,
       to: nick.email,
@@ -393,6 +392,7 @@ apiRoutes.post('/upload', function(req, res, next){
         throw(err);
       else{
         console.log("File created and uploaded");
+        req.sample = false;
         next();
       }
     })
@@ -416,6 +416,7 @@ apiRoutes.post('/upload', function(req, res, next){
         throw err;
       else{
         console.log("File Uploaded");
+        req.sample = true;
         next();
       }
     });
@@ -423,8 +424,13 @@ apiRoutes.post('/upload', function(req, res, next){
 },function(req, res, next){
     var tmp = req.id;
     var name = req.name;
+    var upload_path;
     // create a sample script
-    var upload_path = req.files.sampleFile.name || req.body.name+'.js';
+    if(req.sample)
+      upload_path = req.files.sampleFile.name
+    else
+      upload_path = req.body.name+'.js';
+
     var script = new Script({
       users_id: tmp,
       path: upload_path,

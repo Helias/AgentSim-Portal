@@ -61,6 +61,11 @@
             <button type="submit" class="btn btn-md btn-success">Upload script</button>
           </form>
 
+          <form method="POST" action="agentsim/livesim" target="_blank">
+            <input type="hidden" name="data" ng-value="script">
+            <button type="submit"><i class="glyphicon glyphicon-edit"></i>Live-Preview</button>
+          </form>
+
           <br><br>
 
         </uib-tab>
