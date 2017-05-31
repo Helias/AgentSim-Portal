@@ -16,21 +16,22 @@
 
           <table class="table table-striped">
             <thead>
-              <td>User</td>
-              <td>Script</td>
+              <td><i class="glyphicon glyphicon-user"></i> User</td>
+              <td><i class="fa fa-code" aria-hidden="true"></i> Script</td>
               <td>Date</td>
             </thead>
             <tbody>
               <tr ng-repeat="script in scripts track by $index">
-                <td>{{ script._id }}</td>
+                <td>{{ script.owner }}</td>
                 <td>
-                  <b class="text-primary">{{ script.path.replace("./upload/", "") }}</b>
+                  <b class="text-primary" style="font-size: 20px">{{ script.path }}</b>
                   &nbsp;
-                  <a href="agentsim/livesim?path={{script.path.replace('./upload/', '')}}" target="_blank" class="nodecoration">
-                    <h4 class="text-success play">
+                  <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
+                    <input type="hidden" name="path" ng-value="script.path">
+                    <button type="submit" class="text-success play-button">
                       <i class="glyphicon glyphicon-play-circle"></i>
-                    </h4>
-                  </a>
+                    </button>
+                  </form>
                   &nbsp;
                   <h4 class="text-info play">
                     <i class="glyphicon glyphicon-edit"></i>
@@ -46,11 +47,26 @@
         <uib-tab index="1" heading="Create script">
           <br>
 
+        <div class="row">
+          <div class="col-sm-offset-8 col-sm-4">
+            <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
+              <input type="hidden" name="data" ng-value="script">
+              <button type="submit" class="play-button text-success">
+                <i class="glyphicon glyphicon-play-circle"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
           <form ng-submit="uploadScript(scriptName, script)">
-            <div class="form-inline">
-              <label><h4>Name:</h4></label>
-              <div class="form-group">
-                <input type="text" class="form-control" ng-model="scriptName" placeholder="name of the script.." required>
+            <div class="row">
+              <div class="col-sm-6 col-sm-offset-2">
+                <div class="form-inline">
+                  <label><h4>Name:</h4></label>
+                  <div class="form-group">
+                    <input type="text" class="form-control" ng-model="scriptName" placeholder="name of the script.." required>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -59,11 +75,6 @@
 
             <br><br>
             <button type="submit" class="btn btn-md btn-success">Upload script</button>
-          </form>
-
-          <form method="POST" action="agentsim/livesim" target="_blank">
-            <input type="hidden" name="data" ng-value="script">
-            <button type="submit"><i class="glyphicon glyphicon-edit"></i>Live-Preview</button>
           </form>
 
           <br><br>

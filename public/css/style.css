@@ -21,4 +21,13 @@
   vertical-align: middle;
 }
 
+.play-button {
+  display: inline;
+  border: none;
+  background-color: transparent;
+  font-size: 20px;
+}
+
 .nodecoration { text-decoration: none !important; }
+
+.inline { display: inline; }
