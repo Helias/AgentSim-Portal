@@ -10,12 +10,15 @@ A web portal for AgentSimJS
 ### Install Requirements on Ubuntu 16.04
 
 Install **NodeJS** and **npm**
+```
 $ curl -sL https://deb.nodesource.com/setup_6.x -o nodesource_setup.sh
 $ ./nodesource_setup.sh
 $ sudo apt install nodejs
-
+```
 Install **MongoDB**
+```
 $ sudo apt install mongodb-server
+```
 
 ### Configure
 
@@ -31,6 +34,8 @@ module.exports = {
 ```
 
 Run your application:
+```
 $ node server.js
+```
 
 Now you can visit http://localhost:8080/ and see the output of the project!
