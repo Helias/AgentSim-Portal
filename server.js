@@ -150,81 +150,89 @@ apiRoutes.post('/authenticate', function(req, res) {
  * email:     email of the user [string]
  */
 
-apiRoutes.post('/register', function(req, res, next) {
-  User.find({email: req.body.email}, function(err, users){
-    if(err)
-      throw(err);
-    if(users[0]){
-      return res.json({
-        success: false,
-        message: "this email is already registered"
-      });
-    }
-    else{
-      next();
-    }
-  });
-},function(req, res, next){
-      User.find({name: req.body.name}, function(err, users) {
-        if(err)
-          throw(err);
-        if(users[0])
-          return res.json({
-            success: false,
-            message: "This username already exist."
-          });
-        else{
-          next();
-        }
-      });
-  },function(req, res, next){
-    var nick = new User({
-      name: req.body.name,
-      password: req.body.password,
-      email: req.body.email,
-      blocked: true,
-      admin: true
+apiRoutes.post('/register', function(req, res, next){
+  if(!req.body.name || !req.body.password || !req.body.email)
+    res.json({
+      success: false,
+      message: "You've to fill all the fields."
     });
-
-    // save the sample user
-    nick.save(function(err) {
-      if (err) throw err;
-      res.json({
-        success: true,
-        message: "Utente registrato con successo!"
-      })
-      console.log('User saved successfully');
-    });
-
-    var id = nick._id;
-    var transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: config.email,
-        pass: config.password
-      }
-    });
-
-    var verify = config.home_path+ '/api/verify?token=' +id;
-    var mailOptions = {
-      from: config.email,
-      to: nick.email,
-      subject: 'Verify your AgentSim account!',
-      text: verify
-    };
-
-    transporter.sendMail(mailOptions, function(err, info){
+  else
+    next();
+},function(req,res, next){
+    User.find({email: req.body.email}, function(err, users){
       if(err)
         throw(err);
-      else {
-        console.log('Message sent: ' +info.response);
+      if(users[0]){
+        return res.json({
+          success: false,
+          message: "this email is already registered"
+        });
+      }
+      else{
+        next();
+      }
+    });
+  },function(req, res, next){
+        User.find({name: req.body.name}, function(err, users) {
+          if(err)
+            throw(err);
+          if(users[0])
+            return res.json({
+              success: false,
+              message: "This username already exist."
+            });
+          else{
+            next();
+          }
+        });
+    },function(req, res, next){
+      var nick = new User({
+        name: req.body.name,
+        password: req.body.password,
+        email: req.body.email,
+        blocked: true,
+        admin: true
+      });
+
+      // save the sample user
+      nick.save(function(err) {
+        if (err) throw err;
         res.json({
           success: true,
-          message: "Email di conferma inviata con successo!"
-        });
+          message: "Utente registrato con successo!"
+        })
+        console.log('User saved successfully');
+      });
+
+      var id = nick._id;
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: config.email,
+          pass: config.password
+        }
+      });
+
+      var verify = config.home_path+ '/api/verify?token=' +id;
+      var mailOptions = {
+        from: config.email,
+        to: nick.email,
+        subject: 'Verify your AgentSim account!',
+        text: verify
       };
-    });
-  }
+
+      transporter.sendMail(mailOptions, function(err, info){
+        if(err)
+          throw(err);
+        else {
+          console.log('Message sent: ' +info.response);
+          res.json({
+            success: true,
+            message: "Email di conferma inviata con successo!"
+          });
+        };
+      });
+    }
 );
 
 /*
