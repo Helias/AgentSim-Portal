@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-sm-offset-2 col-sm-8 col-xs-12 text-center" style="border: 2px solid #ededed">
 
-      <uib-tabset active="activeJustified" justified="true">
+      <uib-tabset active="curretTab" justified="true">
         <h3 class="pull-left">
           <i class="glyphicon glyphicon-user"></i>
           <span ng-show="!(user.name == null || user.name == '')">{{ user.name }}</span>
@@ -12,18 +12,27 @@
         <br><br>
 
         <uib-tab index="0" heading="My Script" ng-click="showScripts()">
+          <br>
+
+          <div class="pull-right">
+            <div class="text-right">
+              <a ng-href="#!/my_scripts/p/{{ (from - 20 > 0 ? from-20 : 0) }}"><button class="arrow arrow-left"><span class="glyphicon glyphicon-chevron-left"></span></button></a>
+                <h3 class="yellowText inline arrow-home">&nbsp; {{ from + " - " + (from-(-20)) }} &nbsp;</h3>
+              <a ng-href="#!/my_scripts/p/{{ 20-(-from) }}"><button class="arrow arrow-right"><span class="glyphicon glyphicon-chevron-right"></span></button></a>
+            </div>
+          </div>
+
+          <br><br>
 
           <table class="table table-striped">
             <thead>
-              <td><i class="glyphicon glyphicon-user"></i> User</td>
               <td><i class="fa fa-code" aria-hidden="true"></i> Script</td>
               <td>Date</td>
             </thead>
             <tbody>
               <tr ng-repeat="script in scripts track by $index">
-                <td>{{ script.owner }}</td>
                 <td>
-                  <b class="text-primary">{{ script.path }}</b>
+                  <h2 class="text-primary inline">{{ script.path.replace("-" + script.users_id, "") }}</h2>
                   &nbsp;
                   <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
                     <input type="hidden" name="path" ng-value="script.path">
@@ -32,9 +41,11 @@
                     </button>
                   </form>
                   &nbsp;
-                  <h4 class="text-info play">
-                    <i class="glyphicon glyphicon-edit"></i>
-                  </h4>
+                  <a ng-href="#!/my_scripts/{{ script._id }}">
+                    <h4 class="text-info play">
+                      <i class="glyphicon glyphicon-edit"></i>
+                    </h4>
+                  </a>
                 </td>
                 <td>{{ script.creation.getDate() + "/" + script.creation.getMonth() + "/" + script.creation.getFullYear() }}</td>
               </tr>
@@ -43,10 +54,21 @@
 
         </uib-tab>
 
-        <uib-tab index="1" heading="Modify script">
+        <uib-tab index="1" heading="Modify script" ng-show="enableModify">
           <br>
 
-          <form ng-submit="uploadScript(scriptName, script)">
+          <div class="row">
+            <div class="col-sm-offset-8 col-sm-4">
+              <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
+                <input type="hidden" name="data" ng-value="script">
+                <button type="submit" class="play-button">
+                  <h2 class="text-success"><i class="glyphicon glyphicon-play-circle play"></i> Preview</h2>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <form ng-submit="modifyScript(scriptName, script)">
             <div class="form-inline">
               <label><h4>Name:</h4></label>
               <div class="form-group">
@@ -58,7 +80,7 @@
             <textarea class="form-control script-area" ng-model="script" required></textarea>
 
             <br><br>
-            <button type="submit" class="btn btn-md btn-success">Upload script</button>
+            <button type="submit" class="btn btn-md btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Update script</button>
           </form>
 
           <br><br>

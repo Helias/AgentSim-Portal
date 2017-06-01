@@ -31,3 +31,28 @@
 .nodecoration { text-decoration: none !important; }
 
 .inline { display: inline; }
+
+.arrow {
+  height: 35px;
+  width: 35px;
+  font-size: 18px;
+  text-decoration: none;
+  transition: all 1s;
+}
+
+.arrow-left {
+  border: none;
+  border-radius: 1em;
+  border-top-right-radius: 0em;
+  border-bottom-right-radius: 0em;
+}
+.arrow-right {
+  border: none;
+  border-radius: 1em;
+  border-top-left-radius: 0em;
+  border-bottom-left-radius: 0em;
+}
+
+.arrow-home {
+  font-size: 18px;
+}
