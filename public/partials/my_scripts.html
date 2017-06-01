@@ -15,21 +15,22 @@
 
           <table class="table table-striped">
             <thead>
-              <td>User</td>
-              <td>Script</td>
+              <td><i class="glyphicon glyphicon-user"></i> User</td>
+              <td><i class="fa fa-code" aria-hidden="true"></i> Script</td>
               <td>Date</td>
             </thead>
             <tbody>
               <tr ng-repeat="script in scripts track by $index">
-                <td>{{ script._id }}</td>
+                <td>{{ script.owner }}</td>
                 <td>
-                  <b class="text-primary">{{ script.path.replace("./upload/", "") }}</b>
+                  <b class="text-primary">{{ script.path }}</b>
                   &nbsp;
-                  <a href="agentsim/livesim?path={{script.path.replace('./upload/', '')}}" target="_blank" class="nodecoration">
-                    <h4 class="text-success play">
+                  <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
+                    <input type="hidden" name="path" ng-value="script.path">
+                    <button type="submit" class="text-success play-button">
                       <i class="glyphicon glyphicon-play-circle"></i>
-                    </h4>
-                  </a>
+                    </button>
+                  </form>
                   &nbsp;
                   <h4 class="text-info play">
                     <i class="glyphicon glyphicon-edit"></i>
@@ -42,7 +43,7 @@
 
         </uib-tab>
 
-        <uib-tab index="1" heading="Create script">
+        <uib-tab index="1" heading="Modify script">
           <br>
 
           <form ng-submit="uploadScript(scriptName, script)">

@@ -33,9 +33,11 @@
                     </button>
                   </form>
                   &nbsp;
-                  <h4 class="text-info play">
-                    <i class="glyphicon glyphicon-edit"></i>
-                  </h4>
+                  <a ng-href="my_scripts/script.id">
+                    <h4 class="text-info play" ng-show="user.name == script.owner">
+                      <i class="glyphicon glyphicon-edit"></i>
+                    </h4>
+                  </a>
                 </td>
                 <td>{{ script.creation.getDate() + "/" + script.creation.getMonth() + "/" + script.creation.getFullYear() }}</td>
               </tr>
@@ -51,8 +53,8 @@
           <div class="col-sm-offset-8 col-sm-4">
             <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
               <input type="hidden" name="data" ng-value="script">
-              <button type="submit" class="play-button text-success">
-                <i class="glyphicon glyphicon-play-circle"></i>
+              <button type="submit" class="play-button">
+                <h2 class="text-success"><i class="glyphicon glyphicon-play-circle play"></i> Preview</h2>
               </button>
             </form>
           </div>

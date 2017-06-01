@@ -163,24 +163,6 @@ app.controller('myScriptsController', function ($scope, $http, $state, $rootScop
         console.log("http error!");
     });
   };
-
-/*
-  $http({
-    method: 'POST',
-    url: path + "api/upload",
-    data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  }).then(
-    function(res) {
-      if (res.data.success)
-        Notification.success("Script sent!");
-      else
-        Notification.error("Error!");
-    },
-    function(err) {
-      Notification.error("Error!");
-    }
-  );
-*/
+  $scope.showScripts();
 
 });
