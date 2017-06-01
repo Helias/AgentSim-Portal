@@ -200,7 +200,7 @@ apiRoutes.post('/register', function(req, res, next){
         if (err) throw err;
         res.json({
           success: true,
-          message: "User saved successfully"
+          message: "User registered successfully!"
         })
         console.log('User saved successfully');
       });
@@ -314,13 +314,16 @@ apiRoutes.get('/scripts', function(req, res){
 
 /*
 * /script/:user     route to return all user's scripts
+*
+* from: starting point to see the number of scripts. example: from=20 => it will show scripts from 20 to 40
 */
 apiRoutes.get('/scripts/:user', function(req, res){
  var user = req.params.user;
- console.log(user);
+
  Script.find({owner: user}, function(err, scripts){
    res.json(scripts);
- }).sort({creation: -1});
+ }).skip(req.query.from).sort({creation: -1});
+
 });
 
 /*
@@ -519,8 +522,35 @@ apiRoutes.post('/upload', function(req, res, next){
 */
 apiRoutes.get('/getScript/:id', function(req, res){
 
- Script.find({_id: req.params.id}, function(err, scripts){
-   res.json(scripts);
+ Script.find({_id: req.params.id}, function(err, script){
+
+   if (script) {
+
+     fs.readFile('upload/' + script[0].path, function(err, data){
+       if(err)
+         throw(err);
+
+         var sendScript = {
+           path: script[0].path,
+           users_id: script[0].users_id,
+           owner: script[0].owner,
+           _id: script[0]._id,
+           updated: script[0].updated,
+           creation: script[0].creation,
+           code: data.toString(),
+           success: true
+         };
+
+       res.json(sendScript);
+     });
+   }
+  else {
+    res.json({
+      success: false,
+      message: "This script doesn't exist"
+    });
+  }
+
  });
 
 });
@@ -550,7 +580,7 @@ apiRoutes.post('/modify', function(req, res, next){
 },function(req, res, next){
   if(req.body.name){
     req.body.name = req.body.name+"-"+req.id+'.js';
-    Script.find({path : req.body.name}, function(err, scripts){
+    Script.find({path : req.body.name, _id : { $ne : req.body.id_script } }, function(err, scripts){
       if(err)
         throw(err);
       if(scripts[0])

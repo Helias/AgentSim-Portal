@@ -1,7 +1,7 @@
 app.controller('homeController', function ($scope) {
 
   $(function() {
-    $('#commits').githubInfoWidget({ user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 5, limitMessageTo: 60 });
+    $('#commits').githubInfoWidget({ user: 'Helias', repo: 'AgentSim-Portal', branch: 'master', last: 10, limitMessageTo: 60 });
   });
 
 });
@@ -40,7 +40,7 @@ app.controller('loginController', function ($scope, $rootScope, $state, $http, $
   };
 });
 
-app.controller('registerController', function ($scope, $http, Notification) {
+app.controller('registerController', function ($scope, $http, $state, Notification) {
 
   $scope.alertMessage = "";
 
@@ -56,6 +56,7 @@ app.controller('registerController', function ($scope, $http, Notification) {
         if (res.data.success) {
           Notification.success(res.data.message);
           $scope.alertMessage = res.data.message;
+          $state.go("home");
         }
         else {
           Notification.error(res.data.message);
@@ -72,15 +73,17 @@ app.controller('registerController', function ($scope, $http, Notification) {
 
 });
 
-app.controller('scriptsController', function ($scope, $http, $rootScope, $localStorage, $timeout, Notification, Upload) {
+app.controller('scriptsController', function ($scope, $http, $rootScope, $timeout, $stateParams, Notification, Upload) {
 
   // init variables
   $scope.f = null;
   $scope.errFile = null;
 
+  $scope.from = $stateParams.from == null ? 0 : $stateParams.from;
+
   // show scripts
   $scope.showScripts = function() {
-    $http.get(path + "api/scripts" + "?token=" + $localStorage.user.token)
+    $http.get(path + "api/scripts?from=" + $scope.from)
       .then(function(res) {
 
         $scope.scripts = res.data;
@@ -99,14 +102,14 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
     $http({
       method: 'POST',
       url: path + "api/upload",
-      data: $.param({ param_script: script, name: scriptName, token: $localStorage.user.token }),
+      data: $.param({ param_script: script, name: scriptName, token: $rootScope.user.token }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).then(
       function(res) {
         if (res.data.success)
           Notification.success("Script sent!");
         else
-          Notification.error("Error!");
+          Notification.error(res.data.message);
       },
       function(err) {
         Notification.error("Error!");
@@ -126,13 +129,16 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
     if (file) {
         file.upload = Upload.upload({
             url: path + "api/upload",
-            data: { sampleFile: file, token: $localStorage.user.token}
+            data: { sampleFile: file, token: $rootScope.user.token}
         });
 
         file.upload.then(function (response) {
             $timeout(function () {
                 file.result = response.data;
-                Notification.success("Script uploaded!");
+                if (response.data.success)
+                  Notification.success(response.data.message);
+                else
+                  Notification.error(response.data.message);
             });
         }, function (response) {
             if (response.status > 0)
@@ -146,22 +152,37 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
 });
 
 
-app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $localStorage, $stateParams, Notification, Upload) {
+app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $stateParams, Notification) {
 
-/*  if ($rootScope.user.name == null || $rootScope.user.name == '')
+  if ($rootScope.user.name == null || $rootScope.user.name == '')
     $state.go("home");
-*/
+
+  $scope.from = $stateParams.page == null ? 0 : $stateParams.page;
+
+  $scope.enableModify = $stateParams.id == null ? false : true;
+
   if ($stateParams.id != null) {
+
+    $scope.curretTab = 1;
+
     $http.get(path + "api/getScript/" + $stateParams.id + "?token=" + $rootScope.user.token)
       .then(function(response) {
-        console.log(response.data[0]);
+
+        if (response.data.success) {
+          $scope.scriptName = response.data.path.replace("-" +  response.data.users_id, "");
+          $scope.script = response.data.code;
+          Notification.success("Script loaded!");
+        }
+        else
+          Notification.error(response.data.message);
+
       }, function(response) {
         console.log("Error!");
     });
   }
 
   $scope.showScripts = function() {
-    $http.get(path + "api/scripts/" + $rootScope.user.name + "?token=" + $localStorage.user.token)
+    $http.get(path + "api/scripts/" + $rootScope.user.name + "?from=" + $scope.from + "&token=" + $rootScope.user.token)
       .then(function(res) {
 
         $scope.scripts = res.data;
@@ -173,5 +194,24 @@ app.controller('myScriptsController', function ($scope, $http, $state, $rootScop
     });
   };
   $scope.showScripts();
+
+  $scope.modifyScript = function(scriptName, script) {
+    $http({
+      method: 'POST',
+      url: path + "api/modify",
+      data: $.param({ id_script: $stateParams.id, value: script, name: scriptName, token: $rootScope.user.token }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).then(
+      function(res) {
+        if (res.data.success)
+          Notification.success("Script updated!");
+        else
+          Notification.error(res.data.message);
+      },
+      function(err) {
+        Notification.error("Error!");
+      }
+    );
+  };
 
 });

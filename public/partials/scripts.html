@@ -14,6 +14,17 @@
 
         <uib-tab index="0" heading="Script" ng-click="showScripts()">
 
+          <br>
+          <div class="pull-right">
+            <div class="text-right">
+              <a ng-href="#!/scripts/{{ (from - 20 > 0 ? from-20 : 0) }}"><button class="arrow arrow-left"><span class="glyphicon glyphicon-chevron-left"></span></button></a>
+                <h3 class="yellowText inline arrow-home">&nbsp; {{ from + " - " + (from-(-20)) }} &nbsp;</h3>
+              <a ng-href="#!/scripts/{{ 20-(-from) }}"><button class="arrow arrow-right"><span class="glyphicon glyphicon-chevron-right"></span></button></a>
+            </div>
+          </div>
+          <br>
+          <br>
+
           <table class="table table-striped">
             <thead>
               <td><i class="glyphicon glyphicon-user"></i> User</td>
@@ -24,7 +35,7 @@
               <tr ng-repeat="script in scripts track by $index">
                 <td>{{ script.owner }}</td>
                 <td>
-                  <b class="text-primary" style="font-size: 20px">{{ script.path }}</b>
+                  <h2 class="text-primary inline">{{ script.path.replace("-" + script.users_id, "") }}</h2>
                   &nbsp;
                   <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
                     <input type="hidden" name="path" ng-value="script.path">
@@ -33,7 +44,7 @@
                     </button>
                   </form>
                   &nbsp;
-                  <a ng-href="my_scripts/script.id">
+                  <a ng-href="#!/my_scripts/{{ script._id }}">
                     <h4 class="text-info play" ng-show="user.name == script.owner">
                       <i class="glyphicon glyphicon-edit"></i>
                     </h4>
@@ -49,61 +60,82 @@
         <uib-tab index="1" heading="Create script">
           <br>
 
-        <div class="row">
-          <div class="col-sm-offset-8 col-sm-4">
-            <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
-              <input type="hidden" name="data" ng-value="script">
-              <button type="submit" class="play-button">
-                <h2 class="text-success"><i class="glyphicon glyphicon-play-circle play"></i> Preview</h2>
-              </button>
-            </form>
-          </div>
-        </div>
+          <div ng-show="user.name != null && user.name != ''">
 
-          <form ng-submit="uploadScript(scriptName, script)">
             <div class="row">
-              <div class="col-sm-6 col-sm-offset-2">
-                <div class="form-inline">
-                  <label><h4>Name:</h4></label>
-                  <div class="form-group">
-                    <input type="text" class="form-control" ng-model="scriptName" placeholder="name of the script.." required>
-                  </div>
-                </div>
+              <div class="col-sm-offset-8 col-sm-4">
+                <form method="POST" action="agentsim/livesim" target="_blank" class="inline">
+                  <input type="hidden" name="data" ng-value="script">
+                  <button type="submit" class="play-button">
+                    <h2 class="text-success"><i class="glyphicon glyphicon-play-circle play"></i> Preview</h2>
+                  </button>
+                </form>
               </div>
             </div>
 
-            <br>
-            <textarea class="form-control script-area" ng-model="script" required></textarea>
+            <form ng-submit="uploadScript(scriptName, script)">
+              <div class="row">
+                <div class="col-sm-6 col-sm-offset-2">
+                  <div class="form-inline">
+                    <label><h4>Name:</h4></label>
+                    <div class="form-group">
+                      <input type="text" class="form-control" ng-model="scriptName" placeholder="name of the script.." required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+              <textarea class="form-control script-area" ng-model="script" required></textarea>
+
+              <br><br>
+              <button type="submit" class="btn btn-md btn-success">Create script</button>
+            </form>
 
             <br><br>
-            <button type="submit" class="btn btn-md btn-success">Upload script</button>
-          </form>
+          </div>
 
-          <br><br>
+          <div ng-show="user.name == null || user.name == ''">
+            <br>
+            <h3><a ng-href="#!/register">Register</a> to create script!</h3>
+            <br>
+            <br>
+          </div>
 
         </uib-tab>
 
         <uib-tab index="2" heading="Upload your script">
-          <br>
-          <br>
-
-          <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js">
-            Select File
-          </button>
-          <br><br>
-            <h4><i class="upload-icon glyphicon glyphicon-open-file"></i> {{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
+          <div ng-show="user.name != null && user.name != ''">
             <br>
-            <button class="btn btn-md btn-success" ng-show="f.name != null && f.name != ''" ng-click="uploadFile(f, errFile)">Upload script</button>
             <br>
-            <div class="text-center" ng-show="f.progress >= 0">
-              <br><br>
-              <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
-                <b>{{ f.progress }}%</b>
-              </uib-progressbar>
-            </div>
-          {{ errorMsg }}
 
-          <br><br>
+            <button class="btn btn-md btn-primary" type="file" ngf-select="setFile($file, $invalidFiles)" accept=".js">
+              Select File
+            </button>
+            <br><br>
+              <h4><i class="upload-icon glyphicon glyphicon-open-file"></i> {{ f.name }} {{ errFile.name }} {{ errFile.$error }} {{ errFile.$errorParam }}</h4>
+              <br>
+              <button class="btn btn-md btn-success" ng-show="f.name != null && f.name != ''" ng-click="uploadFile(f, errFile)">Upload script</button>
+              <br>
+              <div class="text-center" ng-show="f.progress >= 0">
+                <br><br>
+                <uib-progressbar class="progress-script progress-striped active"  animate="true" value="f.progress" type="success">
+                  <b>{{ f.progress }}%</b>
+                </uib-progressbar>
+              </div>
+            {{ errorMsg }}
+
+            <br><br>
+          </div>
+
+          <div ng-show="user.name == null || user.name == ''">
+            <br>
+            <br>
+            <h3><a ng-href="#!/register">Register</a> to create script!</h3>
+            <br>
+            <br>
+          </div>
+
         </uib-tab>
       </uib-tabset>
 

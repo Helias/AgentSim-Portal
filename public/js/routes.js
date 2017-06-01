@@ -25,10 +25,20 @@ app.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: 'partials/scripts.html',
       controller: 'scriptsController'
     })
+    .state('scripts_from', {
+       url: '/scripts/:from',
+       templateUrl: 'partials/scripts.html',
+       controller: 'scriptsController'
+     })
     .state('my_scripts', {
        url: '/my_scripts',
        templateUrl: 'partials/my_scripts.html',
        controller: 'myScriptsController'
+    })
+    .state('my_scripts_page', {
+      url: '/my_scripts/p/:page',
+      templateUrl: 'partials/my_scripts.html',
+      controller: 'myScriptsController'
     })
     .state('my_scripts_single', {
       url: '/my_scripts/:id',
