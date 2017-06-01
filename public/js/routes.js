@@ -29,5 +29,10 @@ app.config(function($stateProvider, $urlRouterProvider) {
        url: '/my_scripts',
        templateUrl: 'partials/my_scripts.html',
        controller: 'myScriptsController'
-     });
+    })
+    .state('my_scripts_single', {
+      url: '/my_scripts/:id',
+      templateUrl: 'partials/my_scripts.html',
+      controller: 'myScriptsController'
+    });
 });

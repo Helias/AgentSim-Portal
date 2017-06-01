@@ -500,6 +500,17 @@ apiRoutes.post('/upload', function(req, res, next){
 );
 
 /*
+* /getScript/:id  route to return all user's scripts
+*/
+apiRoutes.get('/getScript/:id', function(req, res){
+
+ Script.find({_id: req.params.id}, function(err, scripts){
+   res.json(scripts);
+ });
+
+});
+
+/*
  * /modify     route to modify a script
  *
  * token: user's token [token]
@@ -508,7 +519,6 @@ apiRoutes.post('/upload', function(req, res, next){
  * value: the new modified text of the script
  *
  */
-
 apiRoutes.post('/modify', function(req, res, next){
   var token = req.body.token;
 

@@ -146,10 +146,19 @@ app.controller('scriptsController', function ($scope, $http, $rootScope, $localS
 });
 
 
-app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $localStorage, $timeout, Notification, Upload) {
+app.controller('myScriptsController', function ($scope, $http, $state, $rootScope, $localStorage, $stateParams, Notification, Upload) {
 
-  if ($rootScope.user.name == null || $rootScope.user.name == '')
+/*  if ($rootScope.user.name == null || $rootScope.user.name == '')
     $state.go("home");
+*/
+  if ($stateParams.id != null) {
+    $http.get(path + "api/getScript/" + $stateParams.id + "?token=" + $rootScope.user.token)
+      .then(function(response) {
+        console.log(response.data[0]);
+      }, function(response) {
+        console.log("Error!");
+    });
+  }
 
   $scope.showScripts = function() {
     $http.get(path + "api/scripts/" + $rootScope.user.name + "?token=" + $localStorage.user.token)
