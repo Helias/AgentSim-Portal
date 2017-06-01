@@ -415,6 +415,7 @@ apiRoutes.post('/upload', function(req, res, next){
   });
 },function(req, res, next){
     if(req.body.name){
+      req.body.name = req.body.name.replace(".js", "");
       req.body.name = req.body.name+"-"+req.id+'.js';
       Script.find({path : req.body.name}, function(err, scripts){
         if(err)
