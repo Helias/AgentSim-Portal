@@ -205,7 +205,7 @@ apiRoutes.post('/register', function(req, res, next) {
       }
     });
 
-    var verify = config.verify+ '/api/verify?token=' +id;
+    var verify = config.home_path+ '/api/verify?token=' +id;
     var mailOptions = {
       from: config.email,
       to: nick.email,
@@ -240,10 +240,11 @@ apiRoutes.get('/verify', function(req,res){
       throw(err);
   });
 
-  res.json({
-    success: true,
-    message: "User verified."
-  });
+  res.writeHead(301,
+    {Location: config.home_path+'/#!/login'},
+    "User verified."
+  );
+  res.end();
 });
 
 /*
@@ -307,6 +308,26 @@ apiRoutes.get('/scripts/:user', function(req, res){
    res.json(scripts);
  }).sort({creation: -1});
 });
+
+/*
+* /getExpireTime route to return token's remaining time
+*
+* token: token that needs to be verified
+*/
+apiRoutes.post('/getExpireTime', function(req, res){
+  var token = req.body.token;
+  var time;
+
+  jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+    if (err) {
+      return res.json({ success: false, message: 'Failed to authenticate token.' });
+    } else {
+      // if everything is good, save to request for use in other routes
+      time = decoded.iat;
+    }
+  });
+  res.send(time);
+})
 
 
 // route middleware to verify a token
@@ -376,77 +397,106 @@ apiRoutes.post('/upload', function(req, res, next){
     }
   });
 },function(req, res, next){
-  if(!req.files && !req.body.param_script)
-    return res.json({
-      success: false,
-      message: 'No file uploaded.'
-    });
-
-  var upload_path;
-
-  if(req.body.param_script && req.body.name) {
-    upload_path = req.body.name+'.js';
-    fs.writeFile('upload/'+upload_path, req.body.param_script, function(err){
-      if(err)
-        throw(err);
-      else{
-        console.log("File created and uploaded");
-        req.sample = false;
-        next();
-      }
-    })
-  }
-  else {
-    //the name of the input field is used to retrieve the uploaded file
-    let sampleFile = req.files.sampleFile;
-
-    //check if the file uploaded is html or javascript
-    if(sampleFile.mimetype != "application/javascript"){
-      return res.json({
-        success: false,
-        message: 'You can update only .js files'
+    if(req.body.name){
+      req.body.name = req.body.name+"-"+req.id+'.js';
+      Script.find({path : req.body.name}, function(err, scripts){
+        if(err)
+          throw(err);
+        if(scripts[0])
+          res.json({
+            success: false,
+            message: "It already exists a script with this name"
+          });
+        else
+          next();
       });
     }
-
-    //use the mv() method to place the file on server directory
-    upload_path = sampleFile.name;
-    sampleFile.mv('./upload/'+upload_path, function(err){
-      if(err)
-        throw err;
-      else{
-        console.log("File Uploaded");
-        req.sample = true;
-        next();
-      }
-    });
-  }
+    if(req.files){
+      req.files.sampleFile.name = req.files.sampleFile.name.replace(".js", "-"+req.id+".js");
+      Script.find({path : req.files.sampleFile.name}, function(err, scripts){
+        if(err)
+          throw(err);
+        if(scripts[0])
+          res.json({
+            success: false,
+            message: "It already exists a script with this name"
+          });
+        else
+          next();
+      });
+    }
 },function(req, res, next){
-    var tmp = req.id;
-    var name = req.name;
+    if(!req.files && !req.body.param_script)
+      return res.json({
+        success: false,
+        message: 'No file uploaded.'
+      });
+
     var upload_path;
-    // create a sample script
-    if(req.sample)
-      upload_path = req.files.sampleFile.name
-    else
-      upload_path = req.body.name+'.js';
 
-    var script = new Script({
-      users_id: tmp,
-      path: upload_path,
-      owner: name
-    });
-
-    // save the sample script
-    script.save(function(err) {
-      if (err) throw err;
-
-      console.log('Script saved successfully');
-      res.json({
-        success: true,
-        message: "Scipt saved successfully"
+    if(req.body.param_script && req.body.name) {
+      upload_path = req.body.name;
+      fs.writeFile('upload/'+upload_path, req.body.param_script, function(err){
+        if(err)
+          throw(err);
+        else{
+          console.log("File created and uploaded");
+          req.sample = false;
+          next();
+        }
       })
-    });
-  }
+    }
+    else {
+      //the name of the input field is used to retrieve the uploaded file
+      let sampleFile = req.files.sampleFile;
+
+      //check if the file uploaded is html or javascript
+      if(sampleFile.mimetype != "application/javascript"){
+        return res.json({
+          success: false,
+          message: 'You can update only .js files'
+        });
+      }
+
+      //use the mv() method to place the file on server directory
+      upload_path = sampleFile.name;
+      sampleFile.mv('./upload/'+upload_path, function(err){
+        if(err)
+          throw err;
+        else{
+          console.log("File Uploaded");
+          req.sample = true;
+          next();
+        }
+      });
+    }
+  },function(req, res, next){
+      var tmp = req.id;
+      var name = req.name;
+      var upload_path;
+      // create a sample script
+      if(req.sample)
+        upload_path = req.files.sampleFile.name
+      else
+        upload_path = req.body.name;
+
+      var script = new Script({
+        users_id: tmp,
+        path: upload_path,
+        owner: name
+      });
+
+      // save the sample script
+      script.save(function(err) {
+        if (err) throw err;
+
+        console.log('Script saved successfully');
+        res.json({
+          success: true,
+          message: "Scipt saved successfully"
+        })
+      });
+    }
 );
 
 /*
@@ -468,9 +518,25 @@ apiRoutes.post('/modify', function(req, res, next){
     }
     else {
       req.tmp = decoded._doc.name;
+      req.id = decoded._doc._id;
       next();
     }
   });
+},function(req, res, next){
+  if(req.body.name){
+    req.body.name = req.body.name+"-"+req.id+'.js';
+    Script.find({path : req.body.name}, function(err, scripts){
+      if(err)
+        throw(err);
+      if(scripts[0])
+        res.json({
+          success: false,
+          message: "It already exists a script with this name"
+        });
+      else
+        next();
+    });
+  }
 },function(req, res, next){
     Script.find({ $and: [ {_id: req.body.id_script}, {owner: req.tmp} ]}, function(err, users){
       if(err)
@@ -489,11 +555,11 @@ apiRoutes.post('/modify', function(req, res, next){
     })
   },function(req, res, next){
       if(req.body.name){
-        Script.update({"_id": req.body.id_script}, {"$set": {"path": req.body.name+".js"}}, function(err){
+        Script.update({"_id": req.body.id_script}, {"$set": {"path": req.body.name}}, function(err){
           if(err)
             throw(err);
           else{
-            fs.rename('./upload/'+req.script_name, './upload/'+req.body.name+".js", function(err){
+            fs.rename('./upload/'+req.script_name, './upload/'+req.body.name, function(err){
               if(err)
                 throw(err);
               else{
@@ -509,7 +575,7 @@ apiRoutes.post('/modify', function(req, res, next){
         next();
     },function(req, res, next){
         if(req.body.value){
-          fs.writeFile('upload/'+req.script_name+".js", req.body.value, function(err){
+          fs.writeFile('upload/'+req.script_name, req.body.value, function(err){
             if(err)
               throw(err);
             else{
