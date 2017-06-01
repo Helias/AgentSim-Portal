@@ -3,5 +3,5 @@ module.exports = {
     'database': "mongodb://user:pass@example.com:1234/database",
     'email': 'user@gmail.com',
     'password': 'password',
-    'verify': 'verify's path'
+    'home_path': 'http://localhost:8080'
 };
