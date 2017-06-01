@@ -200,7 +200,7 @@ apiRoutes.post('/register', function(req, res, next){
         if (err) throw err;
         res.json({
           success: true,
-          message: "Utente registrato con successo!"
+          message: "User saved successfully"
         })
         console.log('User saved successfully');
       });
