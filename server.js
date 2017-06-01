@@ -151,6 +151,7 @@ apiRoutes.post('/authenticate', function(req, res) {
  */
 
 apiRoutes.post('/register', function(req, res, next){
+  console.log(req.body.name +"  "+req.body.password+"  "+req.body.email);
   if(!req.body.name || !req.body.password || !req.body.email)
     res.json({
       success: false,
@@ -222,8 +223,13 @@ apiRoutes.post('/register', function(req, res, next){
       };
 
       transporter.sendMail(mailOptions, function(err, info){
-        if(err)
-          throw(err);
+        if(err){
+          console.log("Invalid Email.");
+          res.json({
+            success: false,
+            message: "Invalid Email."
+          })
+        }
         else {
           console.log('Message sent: ' +info.response);
           res.json({
