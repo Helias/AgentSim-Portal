@@ -20,11 +20,15 @@ $ sudo apt install mongodb-server
 ### Configure
 
 Copy the file *config.js.dist* into **config.js** and configure it like:
-
+```
 module.exports = {
     'secret': 'your_secret_string',
-    'database': "mongodb://localhost:27017/db_name"
+    'database': "mongodb://localhost:27017/db_name",
+    'email': 'user@gmail.com',
+    'password': 'password',
+    'home_path': 'http://localhost:8080'
 };
+```
 
 Run your application:
 $ node server.js
