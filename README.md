@@ -6,6 +6,7 @@ A web portal for AgentSimJS
 
 - NodeJS & npm
 - MongoDB
+- AgentSimJS
 
 ### Install Requirements on Ubuntu 16.04
 
@@ -18,6 +19,12 @@ $ sudo apt install nodejs
 Install **MongoDB**
 ```
 $ sudo apt install mongodb-server
+```
+
+Download AgentSimJS, go in the directory project and run:
+```
+$ git submodule init
+$ git submodule update
 ```
 
 ### Configure
