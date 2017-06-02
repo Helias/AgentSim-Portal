@@ -1,0 +1,3 @@
+[submodule "public/agentsim"]
+	path = public/agentsim
+	url = https://bitbucket.org/mdebenedetti/agentsimjs.git
