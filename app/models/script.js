@@ -8,5 +8,6 @@ module.exports = mongoose.model('Script', new Schema({
 	updated: {type: Date, default: Date.now},
 	users_id: Schema.Types.ObjectId,
 	path: String,
-	owner: String
+	owner: String,
+	description: String
 }));

@@ -395,6 +395,7 @@ apiRoutes.get('/users', function(req, res) {
  *
  * param_script:  content of the script
  * name:          name of the script
+ * description : description of the script
  OR
  * sampleFile: file.js that contain the script
  *
@@ -402,6 +403,7 @@ apiRoutes.get('/users', function(req, res) {
  */
 apiRoutes.post('/upload', function(req, res, next){
   var token = req.body.token;
+  console.log(token);
 
   jwt.verify(token, app.get('superSecret'), function(err, decoded) {
     if (err) {
@@ -492,6 +494,7 @@ apiRoutes.post('/upload', function(req, res, next){
       var tmp = req.id;
       var name = req.name;
       var upload_path;
+      var desc = req.body.description;
       // create a sample script
       if(req.sample)
         upload_path = req.files.sampleFile.name
@@ -501,7 +504,8 @@ apiRoutes.post('/upload', function(req, res, next){
       var script = new Script({
         users_id: tmp,
         path: upload_path,
-        owner: name
+        owner: name,
+        description: desc
       });
 
       // save the sample script
