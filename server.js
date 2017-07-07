@@ -402,7 +402,6 @@ apiRoutes.get('/users', function(req, res) {
  * token: user's token
  */
 apiRoutes.post('/upload', function(req, res, next){
-  console.log(req.decoded);
   req.id = req.decoded._doc._id;
   req.name = req.decoded._doc.name;
   next();
