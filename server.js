@@ -402,19 +402,10 @@ apiRoutes.get('/users', function(req, res) {
  * token: user's token
  */
 apiRoutes.post('/upload', function(req, res, next){
-  var token = req.body.token;
-  console.log(token);
-
-  jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-    if (err) {
-      return res.json({ success: false, message: 'Failed to authenticate token.' });
-    }
-    else {
-      req.id = decoded._doc._id;
-      req.name = decoded._doc.name;
-      next();
-    }
-  });
+  console.log(req.decoded);
+  req.id = req.decoded._doc._id;
+  req.name = req.decoded._doc.name;
+  next();
 },function(req, res, next){
     if(req.body.name){
       req.body.name = req.body.name.replace(".js", "");
@@ -569,18 +560,9 @@ apiRoutes.get('/getScript/:id', function(req, res){
  *
  */
 apiRoutes.post('/modify', function(req, res, next){
-  var token = req.body.token;
-
-  jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-    if (err) {
-      return res.json({ success: false, message: 'Failed to authenticate token.' });
-    }
-    else {
-      req.tmp = decoded._doc.name;
-      req.id = decoded._doc._id;
-      next();
-    }
-  });
+  req.tmp = req.decoded._doc.name;
+  req.id = req.decoded._doc._id;
+  next();
 },function(req, res, next){
   if(req.body.name){
     req.body.name = req.body.name+"-"+req.id+'.js';
