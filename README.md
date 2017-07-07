@@ -1,5 +1,5 @@
 # AgentSim-Portal
-A web portal for AgentSimJS
+A web portal for [AgentSimJS](https://github.com/maxdeben83/agentsimjs)
 
 
 ### Requirements
